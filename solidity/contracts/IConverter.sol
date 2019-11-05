@@ -1,5 +1,5 @@
 pragma solidity 0.4.26;
-import './token/interfaces/IERC20Token.sol';
+import 'bancor-contracts/solidity/contracts/token/interfaces/IERC20Token.sol';
 
 interface IConverter {
     function token() external view returns (address);

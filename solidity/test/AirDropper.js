@@ -9,7 +9,7 @@ contract("AirDropper", function(accounts) {
     const values = users.map((x, i) => i + 1);
     const supply = values.reduce((a, b) => a + b, 0);
 
-    const catchRevert = require("./helpers/Utils.js").catchRevert;
+    const catchRevert = require("bancor-contracts/solidity/test/helpers/Utils.js").catchRevert;
 
     before(async function() {
         token = await artifacts.require("ERC20Token").new("name", "symbol", 0, supply, {from: owner});

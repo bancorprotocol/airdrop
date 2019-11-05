@@ -1,6 +1,6 @@
 pragma solidity 0.4.26;
-import './utility/Owned.sol';
-import './token/interfaces/IERC20Token.sol';
+import 'bancor-contracts/solidity/contracts/utility/Owned.sol';
+import 'bancor-contracts/solidity/contracts/token/interfaces/IERC20Token.sol';
 
 contract AirDropper is Owned {
     IERC20Token public token;

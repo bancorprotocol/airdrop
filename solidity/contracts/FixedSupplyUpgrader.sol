@@ -1,7 +1,7 @@
 pragma solidity 0.4.26;
-import './utility/TokenHolder.sol';
-import './token/interfaces/IERC20Token.sol';
-import './token/interfaces/ISmartToken.sol';
+import 'bancor-contracts/solidity/contracts/utility/TokenHolder.sol';
+import 'bancor-contracts/solidity/contracts/token/interfaces/IERC20Token.sol';
+import 'bancor-contracts/solidity/contracts/token/interfaces/ISmartToken.sol';
 
 interface IConverterWrapper {
     function token() external view returns (IERC20Token);

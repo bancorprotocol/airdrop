@@ -16,7 +16,7 @@ contract("FixedSupplyUpgrader", function(accounts) {
     const upgrader = accounts[2];
     const commonWallet = accounts[3];
 
-    const catchRevert = require("./helpers/Utils.js").catchRevert;
+    const catchRevert = require("bancor-contracts/solidity/test/helpers/Utils.js").catchRevert;
 
     before(async function() {
         registry            = await artifacts.require("ContractRegistry"   ).new({from: deployer});
