@@ -1,4 +1,4 @@
-# airhodl
+# airdrop
 
 **Prerequisites:**
 - node 10.16.0
@@ -68,12 +68,6 @@ node ./solidity/scripts/upgrade/run.js
         "BNT/ETH Relay Token",
         "BRT",
         18
-    ],
-    "airHodlTokenParams": [
-        "Bancor AirHodl Token",
-        "BVT",
-        18
-    ],
-    "vestingLength": 63072000
+    ]
 }
 ```
