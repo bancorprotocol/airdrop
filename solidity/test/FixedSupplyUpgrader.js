@@ -7,10 +7,10 @@ contract("FixedSupplyUpgrader", function(accounts) {
     let newConverter;
     let fixedSupplyUpgrader;
 
-    const ETH_TOKEN_AMOUNT = 222;
-    const BNT_TOKEN_AMOUNT = 333;
-    const BNT_TOKEN_BUFFER = 444;
-    const BNT_TOKEN_REMAIN = 555;
+    const ETH_TOKEN_AMOUNT = 111;
+    const BNT_TOKEN_AMOUNT = 222;
+    const BNT_TOKEN_BUFFER = 333;
+    const BNT_TOKEN_REMAIN = 444;
 
     const deployer = accounts[1];
     const upgrader = accounts[2];
@@ -23,8 +23,8 @@ contract("FixedSupplyUpgrader", function(accounts) {
         ethToken            = await artifacts.require("EtherToken"         ).new({from: deployer});
         bntToken            = await artifacts.require("SmartToken"         ).new("Bancor Network Token", "BNT", 18, {from: deployer});
         relayToken          = await artifacts.require("SmartToken"         ).new("BNT/ETH Relay Token" , "BRT", 18, {from: deployer});
-        oldConverter        = await artifacts.require("BancorConverter"    ).new(bntToken.address    , registry.address, 0, ethToken.address, 100000, {from: deployer});
-        newConverter        = await artifacts.require("BancorConverter"    ).new(relayToken.address  , registry.address, 0, ethToken.address, 500000, {from: deployer});
+        oldConverter        = await artifacts.require("BancorConverter"    ).new(bntToken.address  , registry.address, 0, ethToken.address, 100000, {from: deployer});
+        newConverter        = await artifacts.require("BancorConverter"    ).new(relayToken.address, registry.address, 0, ethToken.address, 500000, {from: deployer});
         fixedSupplyUpgrader = await artifacts.require("FixedSupplyUpgrader").new({from: upgrader});
         await registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), fixedSupplyUpgrader.address, {from: deployer});
         await newConverter.addConnector(bntToken.address, 500000, false, {from: deployer});
