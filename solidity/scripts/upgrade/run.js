@@ -155,7 +155,7 @@ async function run() {
         const oldConverter = await web3Func(deploy, "oldConverter", "BancorConverter" , [bntToken._address, registry._address, 0, ethToken._address, 100000]);
         await web3Func(send, ethToken    .methods.deposit(), 1234);
         await web3Func(send, ethToken    .methods.transfer(oldConverter._address, 1234));
-        await web3Func(send, bntToken    .methods.issue(account.address, bntTotal + 56789));
+        await web3Func(send, bntToken    .methods.issue(account.address, bntTotal + 5678));
         await web3Func(send, bntToken    .methods.transferOwnership(oldConverter._address));
         await web3Func(send, oldConverter.methods.acceptTokenOwnership());
     }
