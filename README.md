@@ -59,14 +59,9 @@ node ./solidity/scripts/upgrade/run.js
 **Upgrade Configuration File Example:**
 ```json
 {
-    "bntTokenParams": [
-        "Bancor Network Token",
-        "BNT",
-        18
-    ],
     "relayTokenParams": [
-        "BNT/ETH Relay Token",
-        "BRT",
+        "BNT/ETH Token",
+        "BET",
         18
     ]
 }
