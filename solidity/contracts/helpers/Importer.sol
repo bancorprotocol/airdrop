@@ -6,6 +6,3 @@ import 'bancor-contracts/solidity/contracts/token/EtherToken.sol';
 import 'bancor-contracts/solidity/contracts/token/SmartToken.sol';
 import 'bancor-contracts/solidity/contracts/utility/ContractRegistry.sol';
 import 'bancor-contracts/solidity/contracts/converter/BancorConverter.sol';
-
-// `solidity-coverage` fails if no contract is provided
-contract Importer {}
