@@ -5,9 +5,6 @@
 node_modules
 npm-debug.log
 
-# python
-*.pyc
-
 # npm test 1
 solidity/build/contracts
 
