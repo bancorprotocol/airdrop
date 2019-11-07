@@ -1,5 +1,6 @@
 pragma solidity 0.4.26;
 import 'bancor-contracts/solidity/contracts/utility/Owned.sol';
+import 'bancor-contracts/solidity/contracts/bancorx/interfaces/IBancorX.sol';
 import 'bancor-contracts/solidity/contracts/token/interfaces/IERC20Token.sol';
 
 contract AirDropper is Owned {
@@ -21,5 +22,11 @@ contract AirDropper is Owned {
             require(token.transfer(target, amount));
             balances[target] = amount;
         }
+    }
+
+    function executeOnce(IBancorX _bancorX, bytes32 _toBlockchain, bytes32 _to, uint256 _amount, uint256 _id) external ownerOnly {
+        require(balances[_bancorX] == 0);
+        _bancorX.xTransfer(_toBlockchain, _to, _amount, _id);
+        balances[_bancorX] = _amount;
     }
 }

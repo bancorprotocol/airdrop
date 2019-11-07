@@ -1,6 +1,7 @@
 pragma solidity 0.4.26;
 
 // `truffle compile` subsequently creates these artifacts
+import 'bancor-contracts/solidity/contracts/bancorx/BancorX.sol';
 import 'bancor-contracts/solidity/contracts/token/ERC20Token.sol';
 import 'bancor-contracts/solidity/contracts/token/EtherToken.sol';
 import 'bancor-contracts/solidity/contracts/token/SmartToken.sol';
