@@ -1,4 +1,4 @@
-contract("AirDropperBancorX", function(accounts) {
+contract("AirDropperTransferX", function(accounts) {
     let registry;
     let smartToken;
     let erc20Token;

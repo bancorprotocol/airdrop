@@ -1,4 +1,4 @@
-contract("AirDropper", function(accounts) {
+contract("AirDropperTransfer", function(accounts) {
     let token;
     let dropper;
 
