@@ -45,17 +45,6 @@ node ./solidity/scripts/upgrade/run.js
     BNT buffer
 ```
 
-**Airdrop Configuration File Example:**
-```json
-{
-    "params": [
-        "Token",
-        "TKN",
-        18
-    ]
-}
-```
-
 **Upgrade Configuration File Example:**
 ```json
 {
@@ -63,6 +52,30 @@ node ./solidity/scripts/upgrade/run.js
         "BNT/ETH Token",
         "BET",
         18
-    ]
+    ],
+    "registry": {
+        "addr": "0x..."
+    },
+    "ethToken": {
+        "addr": "0x..."
+    },
+    "bntToken": {
+        "addr": "0x..."
+    },
+    "oldConverter": {
+        "addr": "0x..."
+    }
+}
+```
+
+**Airdrop Configuration File Example:**
+```json
+{
+    "relayToken": {
+        "addr": "0x..."
+    },
+    "airDropper": {
+        "addr": "0x..."
+    }
 }
 ```
