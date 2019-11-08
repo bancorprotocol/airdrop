@@ -129,8 +129,8 @@ async function run() {
     const account  = web3.eth.accounts.privateKeyToAccount(PRIVATE_KEY);
     const web3Func = (func, ...args) => func(web3, account, gasPrice, ...args);
 
-    const token   = await web3Func(deploy, "token", "SmartToken", get().params);
-    const dropper = await web3Func(deploy, "dropper", "AirDropper", [token._address]);
+    const relayToken = await web3Func(deploy, "relayToken", "SmartToken", get().relayTokenParams);
+    const airDropper = await web3Func(deploy, "airDropper", "AirDropper", [relayToken._address]);
 
     const lines   = fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
     const targets = lines.map(line => line.split(" ")[0]);
@@ -138,13 +138,13 @@ async function run() {
 
     if (get().transactions == undefined) {
         const supply  = amounts.map(x => Web3.utils.toBN(x)).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
-        const receipt = await web3Func(send, token.methods.issue(dropper._address, supply.toString()));
+        const receipt = await web3Func(send, relayToken.methods.issue(airDropper._address, supply.toString()));
         set({transactions: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
         console.log(`${supply} tokens issued`);
     }
     else {
-        const supply  = await rpc(token.methods.totalSupply());
-        const balance = await rpc(token.methods.balanceOf(dropper._address));
+        const supply  = await rpc(relayToken.methods.totalSupply());
+        const balance = await rpc(relayToken.methods.balanceOf(airDropper._address));
         console.log(`${balance} out of ${supply} tokens remaining`);
     }
 
@@ -153,10 +153,10 @@ async function run() {
         for (let i = 0; i < transactions.length; i++) {
             if (transactions[i].blockNumber == undefined) {
                 const bgn = i * CHUNK_SIZE;
-                const balance = await rpc(dropper.methods.balances(targets[bgn]));
+                const balance = await rpc(airDropper.methods.balances(targets[bgn]));
                 if (balance == "0") {
                     const end = (i + 1) * CHUNK_SIZE;
-                    const receipt = await web3Func(send, dropper.methods.execute(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
+                    const receipt = await web3Func(send, airDropper.methods.execute(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
                     transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
                     console.log(`transaction ${i} submitted: ${JSON.stringify(transactions[i])}`);
                     set({transactions});
@@ -169,10 +169,10 @@ async function run() {
             }
             else if (transactions[i].done == undefined) {
                 const bgn = i * CHUNK_SIZE;
-                const balance = await rpc(dropper.methods.balances(targets[bgn]));
+                const balance = await rpc(airDropper.methods.balances(targets[bgn]));
                 if (balance == "0") {
                     const end = (i + 1) * CHUNK_SIZE;
-                    const receipt = await web3Func(send, dropper.methods.execute(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
+                    const receipt = await web3Func(send, airDropper.methods.execute(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
                     transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
                     console.log(`transaction ${i} resubmitted: ${JSON.stringify(transactions[i])}`);
                     set({transactions});
