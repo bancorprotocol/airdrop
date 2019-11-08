@@ -131,7 +131,6 @@ async function run() {
 
     const token   = await web3Func(deploy, "token", "SmartToken", get().params);
     const dropper = await web3Func(deploy, "dropper", "AirDropper", [token._address]);
-    const owner   = await rpc(dropper.methods.owner());
 
     const lines   = fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
     const targets = lines.map(line => line.split(" ")[0]);
