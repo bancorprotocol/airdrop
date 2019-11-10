@@ -136,11 +136,14 @@ async function run() {
     const targets = lines.map(line => line.split(" ")[0]);
     const amounts = lines.map(line => line.split(" ")[1]);
 
-    if (get().transactions == undefined) {
+    if (get().transactions == undefined)
+        set({transactions: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
+
+    if (get().tokensIssued == undefined) {
         const supply  = amounts.map(x => Web3.utils.toBN(x)).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
         const receipt = await web3Func(send, relayToken.methods.issue(airDropper._address, supply.toString()));
-        set({transactions: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
         console.log(`${supply} tokens issued`);
+        set({tokensIssued: true});
     }
     else {
         const supply  = await rpc(relayToken.methods.totalSupply());

@@ -93,6 +93,7 @@ node ./solidity/scripts/upgrade/run.js
     },
     "airDropper": {
         "addr": "0x..."
-    }
+    },
+    "tokensIssued": true
 }
 ```
