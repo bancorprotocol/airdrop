@@ -121,7 +121,8 @@ async function rpc(func) {
     }
 }
 
-async function assertBalance(token, address, expected) {
+async function assertBalance(token, address, x, y = 0) {
+    const expected = Web3.utils.toBN(x).sub(Web3.utils.toBN(y));
     const actual = await rpc(token.methods.balanceOf(address));
     assertEqual(`balance of ${address}: ${actual}`, `balance of ${address}: ${expected}`);
 }
@@ -182,7 +183,7 @@ async function run() {
 
     await assertBalance(bntToken  , fixedSupplyUpgrader._address, bntTotal);
     await assertBalance(bntToken  , newConverter       ._address, 0);
-    await assertBalance(bntToken  , account            . address, bntBalance - bntTotal);
+    await assertBalance(bntToken  , account            . address, bntBalance, bntTotal);
     await assertBalance(ethToken  , oldConverter       ._address, ethBalance);
     await assertBalance(ethToken  , newConverter       ._address, 0);
     await assertBalance(relayToken, airDropper         ._address, 0);
@@ -196,7 +197,7 @@ async function run() {
 
     await assertBalance(bntToken  , fixedSupplyUpgrader._address, 0);
     await assertBalance(bntToken  , newConverter       ._address, BNT_AMOUNT);
-    await assertBalance(bntToken  , account            . address, bntBalance - BNT_AMOUNT);
+    await assertBalance(bntToken  , account            . address, bntBalance, BNT_AMOUNT);
     await assertBalance(ethToken  , oldConverter       ._address, 0);
     await assertBalance(ethToken  , newConverter       ._address, ethBalance);
     await assertBalance(relayToken, airDropper         ._address, BNT_AMOUNT);
