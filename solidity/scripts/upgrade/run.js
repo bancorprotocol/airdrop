@@ -122,8 +122,8 @@ async function rpc(func) {
 }
 
 async function assertBalance(token, address, x, y = 0) {
-    const expected = Web3.utils.toBN(x).sub(Web3.utils.toBN(y));
     const actual = await rpc(token.methods.balanceOf(address));
+    const expected = Web3.utils.toBN(x).sub(Web3.utils.toBN(y));
     assertEqual(`balance of ${address}: ${actual}`, `balance of ${address}: ${expected}`);
 }
 
