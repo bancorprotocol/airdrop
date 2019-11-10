@@ -15,7 +15,7 @@ const MAX_RESULTS    = 1000;
 
 function init() {
     request(BASE_URL_1, {timeout: 10000}, function(error, response, body) {
-        const parsed = body ? JSON.parse(body) : {};
+        const parsed = parse(body);
         if (parsed.result && parsed.result.length > 0) {
             if (parsed.result[0].to == "") {
                 console.log(`error = ${error}, status = ${response.statusCode}, message = ${parsed.message}, block = ${parsed.result[0].blockNumber}`);
@@ -37,7 +37,7 @@ function scan(fromBlock, numOfBlocks) {
     const toBlock = Math.min(fromBlock + numOfBlocks - 1, LAST_BLOCK);
     if (fromBlock <= toBlock) {
         request(`${BASE_URL_2}&fromBlock=${fromBlock}&toBlock=${toBlock}`, {timeout: 10000}, function(error, response, body) {
-            const parsed = body ? JSON.parse(body) : {};
+            const parsed = parse(body);
             if (parsed.result) {
                 if (parsed.result.length < MAX_RESULTS) {
                     console.log(`blocks ${fromBlock} + ${numOfBlocks}: error = ${error}, status = ${response.statusCode}, message = ${parsed.message}, events = ${parsed.result.length}`);
@@ -54,6 +54,15 @@ function scan(fromBlock, numOfBlocks) {
                 scan(fromBlock, numOfBlocks);
             }
         });
+    }
+}
+
+function parse(str) {
+    try {
+        return JSON.parse(str);
+    }
+    catch (error) {
+        return {};
     }
 }
 
