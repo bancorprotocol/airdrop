@@ -47,7 +47,7 @@ node ./solidity/scripts/upgrade/run.js
 
 ## Testing Mode:
 
-In this mode, you can execute each process separately and independently of the others, with the order of execution being insignificant.
+In this mode you can execute each process separately and independently of the others, with the order of execution being insignificant.
 
 **Upgrade Configuration File Example:**
 ```json
@@ -73,7 +73,7 @@ In this mode, you can execute each process separately and independently of the o
 
 ## Operational Mode:
 
-In this mode, you should execute the `snapshot` process first, the `upgrade` process second and the `airdrop` process third, because:
+In this mode you should execute the `snapshot` process first, the `upgrade` process second and the `airdrop` process third, because:
 - The input for the `upgrade` process partially derives from the output of the `snapshot` process
 - The input for the `airdrop` process partially derives from the output of the `snapshot` process and the output of the `upgrade` process
 

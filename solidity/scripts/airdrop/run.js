@@ -135,19 +135,19 @@ async function run() {
     const lines   = fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
     const targets = lines.map(line => line.split(" ")[0]);
     const amounts = lines.map(line => line.split(" ")[1]);
-    const supply  = amounts.map(x => Web3.utils.toBN(x)).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
+    const total   = amounts.map(x => Web3.utils.toBN(x)).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
 
     if (get().transactions == undefined)
         set({transactions: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
 
     if (get().tokensIssued == undefined) {
-        const receipt = await web3Func(send, relayToken.methods.issue(airDropper._address, supply.toString()));
-        console.log(`${supply} tokens issued`);
+        const receipt = await web3Func(send, relayToken.methods.issue(airDropper._address, total.toString()));
+        console.log(`${total} tokens issued`);
         set({tokensIssued: true});
     }
     else {
         const balance = await rpc(relayToken.methods.balanceOf(airDropper._address));
-        console.log(`${balance} out of ${supply} tokens remaining`);
+        console.log(`${balance} out of ${total} tokens remaining`);
     }
 
     const transactions = get().transactions;
