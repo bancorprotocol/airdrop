@@ -137,9 +137,6 @@ async function run() {
     const amounts = lines.map(line => line.split(" ")[1]);
     const total   = amounts.map(x => Web3.utils.toBN(x)).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
 
-    if (get().transactions == undefined)
-        set({transactions: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
-
     if (get().tokensIssued == undefined) {
         const receipt = await web3Func(send, relayToken.methods.issue(airDropper._address, total.toString()));
         console.log(`${total} tokens issued`);
@@ -149,6 +146,9 @@ async function run() {
         const balance = await rpc(relayToken.methods.balanceOf(airDropper._address));
         console.log(`${balance} out of ${total} tokens remaining`);
     }
+
+    if (get().transactions == undefined)
+        set({transactions: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
 
     const transactions = get().transactions;
     while (transactions.some(x => !x.done)) {
