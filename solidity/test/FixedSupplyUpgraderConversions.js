@@ -25,31 +25,31 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
             "supply": supply
         },
         "smartToken3Params": {
-            "name": "XXX Smart Token Relay",
+            "name": "XXX/BNT Relay Token",
             "symbol": "XXXBNT",
             "decimals": 18,
             "supply": supply
         },
         "smartToken4Params": {
-            "name": "YYY Smart Token Relay",
+            "name": "YYY/BNT Relay Token",
             "symbol": "YYYBNT",
             "decimals": 18,
             "supply": supply
         },
         "smartToken5Params": {
-            "name": "BNT Smart Token Relay",
+            "name": "BNT/ETH Relay Token",
             "symbol": "BNTETH",
             "decimals": 18,
             "supply": supply
         },
         "erc20TokenAParams": {
-            "name": "XXX ERC20 Token",
+            "name": "XXX Standard Token",
             "symbol": "XXX",
             "decimals": 18,
             "supply": supply
         },
         "erc20TokenBParams": {
-            "name": "YYY ERC20 Token",
+            "name": "YYY Standard Token",
             "symbol": "YYY",
             "decimals": 18,
             "supply": supply
