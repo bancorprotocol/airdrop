@@ -1,12 +1,11 @@
 contract("FixedSupplyUpgraderConversions", function(accounts) {
     const account = accounts[0];
 
-    const BNT_TOKEN_AMOUNT = 1000;
-    const BNT_TOKEN_BUFFER = 2000;
-
-    const supply  = "1e24";
-    const reserve = "1e22";
-    const amount  = "1e20";
+    const bntAmount = web3.toBigNumber("1e18");
+    const bntBuffer = web3.toBigNumber("1e12");
+    const supply    = web3.toBigNumber("1e24");
+    const reserve   = web3.toBigNumber("1e22");
+    const amount    = web3.toBigNumber("1e20");
 
     const config = {
         "etherTokenParams": {
@@ -213,8 +212,8 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         await bancorConverter1   .transferOwnership(fixedSupplyUpgrader.address);
         await bancorConverter5   .transferOwnership(fixedSupplyUpgrader.address);
         await smartToken5        .transferOwnership(fixedSupplyUpgrader.address);
-        await smartToken1        .transfer(fixedSupplyUpgrader.address, BNT_TOKEN_AMOUNT + BNT_TOKEN_BUFFER);
-        await fixedSupplyUpgrader.execute(bancorConverter1.address, bancorConverter5.address, account, BNT_TOKEN_AMOUNT);
+        await smartToken1        .transfer(fixedSupplyUpgrader.address, bntAmount.plus(bntBuffer));
+        await fixedSupplyUpgrader.execute(bancorConverter1.address, bancorConverter5.address, account, bntAmount);
         await bancorConverter1   .acceptOwnership();
         await bancorConverter5   .acceptOwnership();
     });
@@ -242,7 +241,7 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
                     const targetTokenBalanceAfter = await targetToken.balanceOf(account);
                     const sourceTokenAmount = sourceTokenBalanceBefore.minus(sourceTokenBalanceAfter);
                     const targetTokenAmount = targetTokenBalanceAfter.minus(targetTokenBalanceBefore);
-                    assert(sourceTokenAmount.equals(amount), `sourceTokenAmount = ${sourceTokenAmount.toFixed()} ≠ ${amount}`);
+                    assert(sourceTokenAmount.equals(amount), `sourceTokenAmount = ${sourceTokenAmount.toFixed()} ≠ ${amount.toFixed()}`);
                     assert(targetTokenAmount.greaterThan(0), `targetTokenAmount = ${targetTokenAmount.toFixed()} < 0`);
                 }
             }
@@ -259,7 +258,7 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
                     const targetTokenBalanceAfter = await web3.eth.getBalance  (account);
                     const sourceTokenAmount = sourceTokenBalanceBefore.minus(sourceTokenBalanceAfter);
                     const targetTokenAmount = targetTokenBalanceAfter.minus(targetTokenBalanceBefore).plus(gasPrice.times(response.receipt.gasUsed));
-                    assert(sourceTokenAmount.equals(amount), `sourceTokenAmount = ${sourceTokenAmount.toFixed()} ≠ ${amount}`);
+                    assert(sourceTokenAmount.equals(amount), `sourceTokenAmount = ${sourceTokenAmount.toFixed()} ≠ ${amount.toFixed()}`);
                     assert(targetTokenAmount.greaterThan(0), `targetTokenAmount = ${targetTokenAmount.toFixed()} < 0`);
                 }
             }
