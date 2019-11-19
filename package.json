@@ -16,7 +16,7 @@
     "verify": "node scripts/verify-all.js"
   },
   "dependencies": {
-    "bancor-contracts": "0.5.5",
+    "bancor-contracts": "0.5.6",
     "ganache-cli": "6.7.0",
     "solidity-coverage": "0.6.7",
     "truffle": "4.1.16",

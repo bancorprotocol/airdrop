@@ -68,24 +68,21 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
             "ratio1": 500000,
             "reserve1": reserve,
             "ratio2": 500000,
-            "reserve2": reserve,
-            "virtual": false
+            "reserve2": reserve
         },
         "converter4Params": {
             "fee": 1000,
             "ratio1": 500000,
             "reserve1": reserve,
             "ratio2": 500000,
-            "reserve2": reserve,
-            "virtual": false
+            "reserve2": reserve
         },
         "converter5Params": {
             "fee": 0,
             "ratio1": 500000,
             "reserve1": reserve,
             "ratio2": 500000,
-            "reserve2": reserve,
-            "virtual": false
+            "reserve2": reserve
         },
         "priceLimitParams": {
             "value": "6e9"
@@ -148,9 +145,9 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         await smartToken2.issue(account, config.smartToken2Params.supply);
         await smartToken3.issue(account, config.smartToken3Params.supply);
         await smartToken4.issue(account, config.smartToken4Params.supply);
-        await bancorConverter3.addReserve(erc20TokenA.address, config.converter3Params.ratio2, config.converter3Params.virtual);
-        await bancorConverter4.addReserve(erc20TokenB.address, config.converter4Params.ratio2, config.converter4Params.virtual);
-        await bancorConverter5.addReserve(etherToken .address, config.converter5Params.ratio2, config.converter5Params.virtual);
+        await bancorConverter3.addReserve(erc20TokenA.address, config.converter3Params.ratio2);
+        await bancorConverter4.addReserve(erc20TokenB.address, config.converter4Params.ratio2);
+        await bancorConverter5.addReserve(etherToken .address, config.converter5Params.ratio2);
         await contractRegistry.registerAddress(web3.fromAscii("ContractRegistry"        ), contractRegistry        .address);
         await contractRegistry.registerAddress(web3.fromAscii("ContractFeatures"        ), contractFeatures        .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorConverterUpgrader" ), fixedSupplyUpgrader     .address);
