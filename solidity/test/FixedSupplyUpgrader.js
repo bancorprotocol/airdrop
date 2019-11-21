@@ -17,6 +17,7 @@ contract("FixedSupplyUpgrader", function(accounts) {
     const upgrader   = accounts[2];
     const airDropper = accounts[3];
 
+    const identifier  = web3.fromAscii("BancorConverterUpgrader");
     const catchRevert = require("bancor-contracts/solidity/test/helpers/Utils.js").catchRevert;
 
     before(async function() {
@@ -28,7 +29,7 @@ contract("FixedSupplyUpgrader", function(accounts) {
         newConverter = await artifacts.require("BancorConverter"        ).new(relayToken.address, registry.address, 0, ethToken.address, 500000, {from: deployer});
         oldUpgrader  = await artifacts.require("BancorConverterUpgrader").new(registry.address, {from: upgrader});
         newUpgrader  = await artifacts.require("FixedSupplyUpgrader"    ).new({from: upgrader});
-        await registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), newUpgrader.address, {from: deployer});
+        await registry.registerAddress(identifier, newUpgrader.address, {from: deployer});
         await newConverter.addConnector(bntToken.address, 500000, false, {from: deployer});
         await relayToken  .transferOwnership(newUpgrader.address, {from: deployer});
         await oldConverter.transferOwnership(newUpgrader.address, {from: deployer});
@@ -84,13 +85,13 @@ contract("FixedSupplyUpgrader", function(accounts) {
     });
 
     it("reinstating upgrader should abort with an error if called by a non-owner", async function() {
-        await catchRevert(registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), oldUpgrader.address, {from: upgrader}));
-        assert.equal(await registry.addressOf(web3.fromAscii("BancorConverterUpgrader")), newUpgrader.address);
+        await catchRevert(registry.registerAddress(identifier, oldUpgrader.address, {from: upgrader}));
+        assert.equal(await registry.addressOf(identifier), newUpgrader.address);
     });
 
     it("reinstating upgrader should complete successfully if called by the owner", async function() {
-        await registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), oldUpgrader.address, {from: deployer});
-        assert.equal(await registry.addressOf(web3.fromAscii("BancorConverterUpgrader")), oldUpgrader.address);
+        await registry.registerAddress(identifier, oldUpgrader.address, {from: deployer});
+        assert.equal(await registry.addressOf(identifier), oldUpgrader.address);
     });
 });
 
