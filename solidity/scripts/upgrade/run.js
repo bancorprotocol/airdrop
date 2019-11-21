@@ -221,9 +221,10 @@ async function run() {
     await web3Func(send, newConverter.methods.acceptOwnership());
     await web3Func(send, registry    .methods.registerAddress(ID, oldUpgrader._address));
 
-    await assertUpgrader(registry    , oldUpgrader._address);
-    await assertOwner   (oldConverter, account    . address);
-    await assertOwner   (newConverter, account    . address);
+    await assertUpgrader(registry    , oldUpgrader ._address);
+    await assertOwner   (relayToken  , newConverter._address);
+    await assertOwner   (oldConverter, account     . address);
+    await assertOwner   (newConverter, account     . address);
 
     if (web3.currentProvider.constructor.name == "WebsocketProvider")
         web3.currentProvider.connection.close();
