@@ -5,6 +5,7 @@ contract("FixedSupplyUpgrader", function(accounts) {
     let relayToken;
     let oldConverter;
     let newConverter;
+    let oldUpgrader;
     let fixedSupplyUpgrader;
 
     const ETH_TOKEN_AMOUNT = 111;
@@ -25,6 +26,7 @@ contract("FixedSupplyUpgrader", function(accounts) {
         relayToken          = await artifacts.require("SmartToken"         ).new("BNT/ETH Relay Token" , "BRT", 18, {from: deployer});
         oldConverter        = await artifacts.require("BancorConverter"    ).new(bntToken.address  , registry.address, 0, ethToken.address, 100000, {from: deployer});
         newConverter        = await artifacts.require("BancorConverter"    ).new(relayToken.address, registry.address, 0, ethToken.address, 500000, {from: deployer});
+        oldUpgrader         = await artifacts.require("BancorConverterUpgrader").new(registry.address, {from: upgrader});
         fixedSupplyUpgrader = await artifacts.require("FixedSupplyUpgrader").new({from: upgrader});
         await registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), fixedSupplyUpgrader.address, {from: deployer});
         await newConverter.addConnector(bntToken.address, 500000, false, {from: deployer});
@@ -79,6 +81,16 @@ contract("FixedSupplyUpgrader", function(accounts) {
         await newConverter.acceptOwnership({from: upgrader});
         await assertOwner(oldConverter, upgrader);
         await assertOwner(newConverter, upgrader);
+    });
+
+    it("reinstating upgrader should abort with an error if called by a non-owner", async function() {
+        await catchRevert(registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), oldUpgrader.address, {from: upgrader}));
+        assert.equal(await registry.addressOf(web3.fromAscii("BancorConverterUpgrader")), fixedSupplyUpgrader.address);
+    });
+
+    it("reinstating upgrader should complete successfully if called by the owner", async function() {
+        await registry.registerAddress(web3.fromAscii("BancorConverterUpgrader"), oldUpgrader.address, {from: deployer});
+        assert.equal(await registry.addressOf(web3.fromAscii("BancorConverterUpgrader")), oldUpgrader.address);
     });
 });
 
