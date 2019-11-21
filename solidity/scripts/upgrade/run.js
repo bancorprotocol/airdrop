@@ -151,11 +151,11 @@ async function run() {
     const bntTotal = Web3.utils.toBN(BNT_AMOUNT).add(Web3.utils.toBN(BNT_BUFFER)).toString();
 
     if (get().oldConverter == undefined) { // this is a test-scenario
-        const registry     = await web3Func(deploy, "registry"    , "ContractRegistry", []);
-        const ethToken     = await web3Func(deploy, "ethToken"    , "EtherToken"      , []);
-        const bntToken     = await web3Func(deploy, "bntToken"    , "SmartToken"      , ["Bancor Network Token", "BNT", 18]);
+        const registry     = await web3Func(deploy, "registry"    , "ContractRegistry"       , []);
+        const ethToken     = await web3Func(deploy, "ethToken"    , "EtherToken"             , []);
+        const bntToken     = await web3Func(deploy, "bntToken"    , "SmartToken"             , ["Bancor Network Token", "BNT", 18]);
         const oldUpgrader  = await web3Func(deploy, "oldUpgrader" , "BancorConverterUpgrader", [registry._address]);
-        const oldConverter = await web3Func(deploy, "oldConverter", "BancorConverter" , [bntToken._address, registry._address, 0, ethToken._address, 100000]);
+        const oldConverter = await web3Func(deploy, "oldConverter", "BancorConverter"        , [bntToken._address, registry._address, 0, ethToken._address, 100000]);
         await web3Func(send, ethToken    .methods.deposit(), 1234);
         await web3Func(send, ethToken    .methods.transfer(oldConverter._address, 1234));
         await web3Func(send, bntToken    .methods.issue(account.address, bntTotal + 5678));
@@ -164,10 +164,10 @@ async function run() {
         await web3Func(send, oldConverter.methods.acceptTokenOwnership());
     }
 
-    const oldConverter = deployed(web3, "BancorConverter" , get().oldConverter.addr);
-    const registry     = deployed(web3, "ContractRegistry", await rpc(oldConverter.methods.registry()));
-    const ethToken     = deployed(web3, "EtherToken"      , await rpc(oldConverter.methods.connectorTokens(0)));
-    const bntToken     = deployed(web3, "SmartToken"      , await rpc(oldConverter.methods.token()));
+    const oldConverter = deployed(web3, "BancorConverter"        , get().oldConverter.addr);
+    const registry     = deployed(web3, "ContractRegistry"       , await rpc(oldConverter.methods.registry()));
+    const ethToken     = deployed(web3, "EtherToken"             , await rpc(oldConverter.methods.connectorTokens(0)));
+    const bntToken     = deployed(web3, "SmartToken"             , await rpc(oldConverter.methods.token()));
     const oldUpgrader  = deployed(web3, "BancorConverterUpgrader", await rpc(registry.methods.addressOf(name)));
 
     const relayToken   = await web3Func(deploy, "relayToken"  , "SmartToken"         , get().relayTokenParams);
