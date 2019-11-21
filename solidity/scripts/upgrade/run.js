@@ -174,7 +174,7 @@ async function run() {
     const bntBalance = await rpc(bntToken.methods.balanceOf(account.address));
     const ethBalance = await rpc(oldConverter.methods.getConnectorBalance(ethToken._address));
 
-    await web3Func(send, newConverter.methods.addConnector(ethToken._address, 500000, false));
+    await web3Func(send, newConverter.methods.addReserve(ethToken._address, 500000));
     await web3Func(send, relayToken  .methods.transferOwnership(newUpgrader._address));
     await web3Func(send, oldConverter.methods.transferOwnership(newUpgrader._address));
     await web3Func(send, newConverter.methods.transferOwnership(newUpgrader._address));
