@@ -86,16 +86,21 @@ contract("FixedSupplyUpgrader", function(accounts) {
 
     it("reinstating upgrader should abort with an error if called by a non-owner", async function() {
         await catchRevert(registry.registerAddress(identifier, oldUpgrader.address, {from: upgrader}));
-        assert.equal(await registry.addressOf(identifier), newUpgrader.address);
+        await assertUpgrader(registry, newUpgrader.address);
     });
 
     it("reinstating upgrader should complete successfully if called by the owner", async function() {
         await registry.registerAddress(identifier, oldUpgrader.address, {from: deployer});
-        assert.equal(await registry.addressOf(identifier), oldUpgrader.address);
+        await assertUpgrader(registry, oldUpgrader.address);
     });
 
     async function assertBalance(token, address, expected) {
         const actual = await token.balanceOf(address);
+        assert.equal(`${actual}`, `${expected}`);
+    }
+
+    async function assertUpgrader(registry, expected) {
+        const actual = await registry.addressOf(identifier);
         assert.equal(`${actual}`, `${expected}`);
     }
 
