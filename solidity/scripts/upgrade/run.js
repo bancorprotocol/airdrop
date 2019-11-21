@@ -166,46 +166,46 @@ async function run() {
     const ethToken     = deployed(web3, "EtherToken"      , await rpc(oldConverter.methods.connectorTokens(0)));
     const bntToken     = deployed(web3, "SmartToken"      , await rpc(oldConverter.methods.token()));
 
-    const relayToken          = await web3Func(deploy, "relayToken"         , "SmartToken"         , get().relayTokenParams);
-    const airDropper          = await web3Func(deploy, "airDropper"         , "AirDropper"         , [relayToken._address]);
-    const newConverter        = await web3Func(deploy, "newConverter"       , "BancorConverter"    , [relayToken._address, registry._address, 0, bntToken._address, 500000]);
-    const fixedSupplyUpgrader = await web3Func(deploy, "fixedSupplyUpgrader", "FixedSupplyUpgrader", []);
+    const relayToken   = await web3Func(deploy, "relayToken"  , "SmartToken"         , get().relayTokenParams);
+    const airDropper   = await web3Func(deploy, "airDropper"  , "AirDropper"         , [relayToken._address]);
+    const newConverter = await web3Func(deploy, "newConverter", "BancorConverter"    , [relayToken._address, registry._address, 0, bntToken._address, 500000]);
+    const newUpgrader  = await web3Func(deploy, "newUpgrader" , "FixedSupplyUpgrader", []);
 
     const bntBalance = await rpc(bntToken.methods.balanceOf(account.address));
     const ethBalance = await rpc(oldConverter.methods.getConnectorBalance(ethToken._address));
 
     await web3Func(send, newConverter.methods.addConnector(ethToken._address, 500000, false));
-    await web3Func(send, relayToken  .methods.transferOwnership(fixedSupplyUpgrader._address));
-    await web3Func(send, oldConverter.methods.transferOwnership(fixedSupplyUpgrader._address));
-    await web3Func(send, newConverter.methods.transferOwnership(fixedSupplyUpgrader._address));
-    await web3Func(send, bntToken    .methods.transfer(fixedSupplyUpgrader._address, bntTotal));
-    await web3Func(send, registry    .methods.registerAddress(Web3.utils.asciiToHex("BancorConverterUpgrader"), fixedSupplyUpgrader._address));
+    await web3Func(send, relayToken  .methods.transferOwnership(newUpgrader._address));
+    await web3Func(send, oldConverter.methods.transferOwnership(newUpgrader._address));
+    await web3Func(send, newConverter.methods.transferOwnership(newUpgrader._address));
+    await web3Func(send, bntToken    .methods.transfer(newUpgrader._address, bntTotal));
+    await web3Func(send, registry    .methods.registerAddress(Web3.utils.asciiToHex("BancorConverterUpgrader"), newUpgrader._address));
 
-    await assertBalance(bntToken  , fixedSupplyUpgrader._address, bntTotal);
-    await assertBalance(bntToken  , newConverter       ._address, 0);
-    await assertBalance(bntToken  , account            . address, bntBalance, bntTotal);
-    await assertBalance(ethToken  , oldConverter       ._address, ethBalance);
-    await assertBalance(ethToken  , newConverter       ._address, 0);
-    await assertBalance(relayToken, airDropper         ._address, 0);
-    await assertBalance(relayToken, account            . address, 0);
+    await assertBalance(bntToken  , newUpgrader ._address, bntTotal);
+    await assertBalance(bntToken  , newConverter._address, 0);
+    await assertBalance(bntToken  , account     . address, bntBalance, bntTotal);
+    await assertBalance(ethToken  , oldConverter._address, ethBalance);
+    await assertBalance(ethToken  , newConverter._address, 0);
+    await assertBalance(relayToken, airDropper  ._address, 0);
+    await assertBalance(relayToken, account     . address, 0);
 
     await assertOwner(relayToken  , account.address);
     await assertOwner(oldConverter, account.address);
     await assertOwner(newConverter, account.address);
 
-    await web3Func(send, fixedSupplyUpgrader.methods.execute(oldConverter._address, newConverter._address, airDropper._address, BNT_AMOUNT));
+    await web3Func(send, newUpgrader.methods.execute(oldConverter._address, newConverter._address, airDropper._address, BNT_AMOUNT));
 
-    await assertBalance(bntToken  , fixedSupplyUpgrader._address, 0);
-    await assertBalance(bntToken  , newConverter       ._address, BNT_AMOUNT);
-    await assertBalance(bntToken  , account            . address, bntBalance, BNT_AMOUNT);
-    await assertBalance(ethToken  , oldConverter       ._address, 0);
-    await assertBalance(ethToken  , newConverter       ._address, ethBalance);
-    await assertBalance(relayToken, airDropper         ._address, BNT_AMOUNT);
-    await assertBalance(relayToken, account            . address, BNT_AMOUNT);
+    await assertBalance(bntToken  , newUpgrader ._address, 0);
+    await assertBalance(bntToken  , newConverter._address, BNT_AMOUNT);
+    await assertBalance(bntToken  , account     . address, bntBalance, BNT_AMOUNT);
+    await assertBalance(ethToken  , oldConverter._address, 0);
+    await assertBalance(ethToken  , newConverter._address, ethBalance);
+    await assertBalance(relayToken, airDropper  ._address, BNT_AMOUNT);
+    await assertBalance(relayToken, account     . address, BNT_AMOUNT);
 
-    await assertOwner(relayToken  , newConverter       ._address);
-    await assertOwner(oldConverter, fixedSupplyUpgrader._address);
-    await assertOwner(newConverter, fixedSupplyUpgrader._address);
+    await assertOwner(relayToken  , newConverter._address);
+    await assertOwner(oldConverter, newUpgrader ._address);
+    await assertOwner(newConverter, newUpgrader ._address);
 
     await web3Func(send, oldConverter.methods.acceptOwnership());
     await web3Func(send, newConverter.methods.acceptOwnership());
