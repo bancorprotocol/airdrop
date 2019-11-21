@@ -66,8 +66,8 @@ contract("FixedSupplyUpgrader", function(accounts) {
         await assertBalance(relayToken, airDropper          , BNT_TOKEN_AMOUNT);
         await assertBalance(relayToken, upgrader            , BNT_TOKEN_AMOUNT);
         await assertOwner(relayToken  , newConverter.address);
-        await assertOwner(oldConverter, newUpgrader.address);
-        await assertOwner(newConverter, newUpgrader.address);
+        await assertOwner(oldConverter, newUpgrader .address);
+        await assertOwner(newConverter, newUpgrader .address);
     });
 
     it("accepting ownership should abort with an error if called by a non-owner", async function() {
