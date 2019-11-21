@@ -143,6 +143,7 @@ function assertEqual(actual, expected) {
 
 async function run() {
     const web3 = new Web3(NODE_ADDRESS);
+    const name = Web3.utils.asciiToHex("BancorConverterUpgrader");
 
     const gasPrice = await getGasPrice(web3);
     const account  = web3.eth.accounts.privateKeyToAccount(PRIVATE_KEY);
@@ -153,11 +154,13 @@ async function run() {
         const registry     = await web3Func(deploy, "registry"    , "ContractRegistry", []);
         const ethToken     = await web3Func(deploy, "ethToken"    , "EtherToken"      , []);
         const bntToken     = await web3Func(deploy, "bntToken"    , "SmartToken"      , ["Bancor Network Token", "BNT", 18]);
+        const oldUpgrader  = await web3Func(deploy, "oldUpgrader" , "BancorConverterUpgrader", [registry._address]);
         const oldConverter = await web3Func(deploy, "oldConverter", "BancorConverter" , [bntToken._address, registry._address, 0, ethToken._address, 100000]);
         await web3Func(send, ethToken    .methods.deposit(), 1234);
         await web3Func(send, ethToken    .methods.transfer(oldConverter._address, 1234));
         await web3Func(send, bntToken    .methods.issue(account.address, bntTotal + 5678));
         await web3Func(send, bntToken    .methods.transferOwnership(oldConverter._address));
+        await web3Func(send, registry    .methods.registerAddress(name, oldUpgrader._address));
         await web3Func(send, oldConverter.methods.acceptTokenOwnership());
     }
 
@@ -165,6 +168,7 @@ async function run() {
     const registry     = deployed(web3, "ContractRegistry", await rpc(oldConverter.methods.registry()));
     const ethToken     = deployed(web3, "EtherToken"      , await rpc(oldConverter.methods.connectorTokens(0)));
     const bntToken     = deployed(web3, "SmartToken"      , await rpc(oldConverter.methods.token()));
+    const oldUpgrader  = deployed(web3, "BancorConverterUpgrader", await rpc(registry.methods.addressOf(name)));
 
     const relayToken   = await web3Func(deploy, "relayToken"  , "SmartToken"         , get().relayTokenParams);
     const airDropper   = await web3Func(deploy, "airDropper"  , "AirDropper"         , [relayToken._address]);
@@ -179,7 +183,6 @@ async function run() {
     await web3Func(send, oldConverter.methods.transferOwnership(newUpgrader._address));
     await web3Func(send, newConverter.methods.transferOwnership(newUpgrader._address));
     await web3Func(send, bntToken    .methods.transfer(newUpgrader._address, bntTotal));
-    await web3Func(send, registry    .methods.registerAddress(Web3.utils.asciiToHex("BancorConverterUpgrader"), newUpgrader._address));
 
     await assertBalance(bntToken  , newUpgrader ._address, bntTotal);
     await assertBalance(bntToken  , newConverter._address, 0);
@@ -193,7 +196,9 @@ async function run() {
     await assertOwner(oldConverter, account.address);
     await assertOwner(newConverter, account.address);
 
+    await web3Func(send, registry   .methods.registerAddress(name, newUpgrader._address));
     await web3Func(send, newUpgrader.methods.execute(oldConverter._address, newConverter._address, airDropper._address, BNT_AMOUNT));
+    await web3Func(send, registry   .methods.registerAddress(name, oldUpgrader._address));
 
     await assertBalance(bntToken  , newUpgrader ._address, 0);
     await assertBalance(bntToken  , newConverter._address, BNT_AMOUNT);
