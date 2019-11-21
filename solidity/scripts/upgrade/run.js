@@ -136,7 +136,7 @@ async function assertAddress(registry, expected) {
 
 async function assertOwner(instance, expected) {
     const actual = await rpc(instance.methods.owner());
-    assertEqual(`owner of ${instance._address}: ${actual.toLowerCase()}`, `owner of ${instance._address}: ${expected.toLowerCase()}`);
+    assertEqual(`owner of ${instance._address}: ${actual}`, `owner of ${instance._address}: ${expected}`);
 }
 
 function assertEqual(actual, expected) {
