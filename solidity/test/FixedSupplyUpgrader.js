@@ -30,7 +30,7 @@ contract("FixedSupplyUpgrader", function(accounts) {
         oldUpgrader  = await artifacts.require("BancorConverterUpgrader").new(registry.address, {from: upgrader});
         newUpgrader  = await artifacts.require("FixedSupplyUpgrader"    ).new({from: upgrader});
         await registry.registerAddress(identifier, newUpgrader.address, {from: deployer});
-        await newConverter.addConnector(bntToken.address, 500000, false, {from: deployer});
+        await newConverter.addReserve(bntToken.address, 500000, {from: deployer});
         await relayToken  .transferOwnership(newUpgrader.address, {from: deployer});
         await oldConverter.transferOwnership(newUpgrader.address, {from: deployer});
         await newConverter.transferOwnership(newUpgrader.address, {from: deployer});
