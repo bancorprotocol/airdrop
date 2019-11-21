@@ -44,30 +44,30 @@ contract("FixedSupplyUpgrader", function(accounts) {
 
     it("function execute should abort with an error if called by a non-owner", async function() {
         await catchRevert(newUpgrader.execute(oldConverter.address, newConverter.address, airDropper, BNT_TOKEN_AMOUNT, {from: deployer}));
-        await assertBalance(bntToken  , newUpgrader .address, BNT_TOKEN_AMOUNT + BNT_TOKEN_BUFFER);
-        await assertBalance(bntToken  , newConverter.address, 0);
-        await assertBalance(bntToken  , upgrader            , BNT_TOKEN_REMAIN);
-        await assertBalance(ethToken  , oldConverter.address, ETH_TOKEN_AMOUNT);
-        await assertBalance(ethToken  , newConverter.address, 0);
-        await assertBalance(relayToken, airDropper          , 0);
-        await assertBalance(relayToken, upgrader            , 0);
-        await assertOwner(relayToken  , deployer);
-        await assertOwner(oldConverter, deployer);
-        await assertOwner(newConverter, deployer);
+        await assertBalance(bntToken    , newUpgrader .address, BNT_TOKEN_AMOUNT + BNT_TOKEN_BUFFER);
+        await assertBalance(bntToken    , newConverter.address, 0);
+        await assertBalance(bntToken    , upgrader            , BNT_TOKEN_REMAIN);
+        await assertBalance(ethToken    , oldConverter.address, ETH_TOKEN_AMOUNT);
+        await assertBalance(ethToken    , newConverter.address, 0);
+        await assertBalance(relayToken  , airDropper          , 0);
+        await assertBalance(relayToken  , upgrader            , 0);
+        await assertOwner  (relayToken  , deployer);
+        await assertOwner  (oldConverter, deployer);
+        await assertOwner  (newConverter, deployer);
     });
 
     it("function execute should complete successfully if called by the owner", async function() {
         await newUpgrader.execute(oldConverter.address, newConverter.address, airDropper, BNT_TOKEN_AMOUNT, {from: upgrader});
-        await assertBalance(bntToken  , newUpgrader .address, 0);
-        await assertBalance(bntToken  , newConverter.address, BNT_TOKEN_AMOUNT);
-        await assertBalance(bntToken  , upgrader            , BNT_TOKEN_REMAIN + BNT_TOKEN_BUFFER);
-        await assertBalance(ethToken  , oldConverter.address, 0);
-        await assertBalance(ethToken  , newConverter.address, ETH_TOKEN_AMOUNT);
-        await assertBalance(relayToken, airDropper          , BNT_TOKEN_AMOUNT);
-        await assertBalance(relayToken, upgrader            , BNT_TOKEN_AMOUNT);
-        await assertOwner(relayToken  , newConverter.address);
-        await assertOwner(oldConverter, newUpgrader .address);
-        await assertOwner(newConverter, newUpgrader .address);
+        await assertBalance(bntToken    , newUpgrader .address, 0);
+        await assertBalance(bntToken    , newConverter.address, BNT_TOKEN_AMOUNT);
+        await assertBalance(bntToken    , upgrader            , BNT_TOKEN_REMAIN + BNT_TOKEN_BUFFER);
+        await assertBalance(ethToken    , oldConverter.address, 0);
+        await assertBalance(ethToken    , newConverter.address, ETH_TOKEN_AMOUNT);
+        await assertBalance(relayToken  , airDropper          , BNT_TOKEN_AMOUNT);
+        await assertBalance(relayToken  , upgrader            , BNT_TOKEN_AMOUNT);
+        await assertOwner  (relayToken  , newConverter.address);
+        await assertOwner  (oldConverter, newUpgrader .address);
+        await assertOwner  (newConverter, newUpgrader .address);
     });
 
     it("accepting ownership should abort with an error if called by a non-owner", async function() {
