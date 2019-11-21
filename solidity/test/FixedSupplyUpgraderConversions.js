@@ -96,6 +96,7 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
     let bancorFormula           ;
     let bancorNetwork           ;
     let bancorNetworkPathFinder ;
+    let bancorConverterUpgrader ;
     let bancorConverterRegistry ;
     let bancorGasPriceLimit     ;
     let etherToken              ;
@@ -123,6 +124,7 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         bancorFormula            = await artifacts.require("BancorFormula"           ).new();
         bancorNetwork            = await artifacts.require("BancorNetwork"           ).new(contractRegistry.address);
         bancorNetworkPathFinder  = await artifacts.require("BancorNetworkPathFinder" ).new(contractRegistry.address);
+        bancorConverterUpgrader  = await artifacts.require("BancorConverterUpgrader" ).new(contractRegistry.address);
         bancorConverterRegistry  = await artifacts.require("BancorConverterRegistry" ).new();
         bancorGasPriceLimit      = await artifacts.require("BancorGasPriceLimit"     ).new(config.priceLimitParams.value);
         etherToken               = await artifacts.require("EtherToken"              ).new();
@@ -150,11 +152,11 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         await bancorConverter5.addReserve(etherToken .address, config.converter5Params.ratio2);
         await contractRegistry.registerAddress(web3.fromAscii("ContractRegistry"        ), contractRegistry        .address);
         await contractRegistry.registerAddress(web3.fromAscii("ContractFeatures"        ), contractFeatures        .address);
-        await contractRegistry.registerAddress(web3.fromAscii("BancorConverterUpgrader" ), fixedSupplyUpgrader     .address);
         await contractRegistry.registerAddress(web3.fromAscii("NonStandardTokenRegistry"), nonStandardTokenRegistry.address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorFormula"           ), bancorFormula           .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorNetwork"           ), bancorNetwork           .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorNetworkPathFinder" ), bancorNetworkPathFinder .address);
+        await contractRegistry.registerAddress(web3.fromAscii("BancorConverterUpgrader" ), bancorConverterUpgrader .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorConverterRegistry" ), bancorConverterRegistry .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorGasPriceLimit"     ), bancorGasPriceLimit     .address);
         await contractRegistry.registerAddress(web3.fromAscii("EtherToken"              ), etherToken              .address);
@@ -210,7 +212,9 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         await bancorConverter5   .transferOwnership(fixedSupplyUpgrader.address);
         await smartToken5        .transferOwnership(fixedSupplyUpgrader.address);
         await smartToken1        .transfer(fixedSupplyUpgrader.address, bntAmount.plus(bntBuffer));
+        await contractRegistry   .registerAddress(web3.fromAscii("BancorConverterUpgrader"), fixedSupplyUpgrader.address);
         await fixedSupplyUpgrader.execute(bancorConverter1.address, bancorConverter5.address, account, bntAmount);
+        await contractRegistry   .registerAddress(web3.fromAscii("BancorConverterUpgrader"), bancorConverterUpgrader.address);
         await bancorConverter1   .acceptOwnership();
         await bancorConverter5   .acceptOwnership();
     });
