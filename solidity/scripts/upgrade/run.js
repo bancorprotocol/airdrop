@@ -191,39 +191,39 @@ async function run() {
     await web3Func(send, bntToken    .methods.transfer(newUpgrader._address, bntTotal));
     await web3Func(send, registry    .methods.registerAddress(ID, newUpgrader._address));
 
-    await assertBalance(bntToken  , newUpgrader ._address, bntTotal);
-    await assertBalance(bntToken  , newConverter._address, 0);
-    await assertBalance(bntToken  , account     . address, bntBalance, bntTotal);
-    await assertBalance(ethToken  , oldConverter._address, ethBalance);
-    await assertBalance(ethToken  , newConverter._address, 0);
-    await assertBalance(relayToken, airDropper  ._address, 0);
-    await assertBalance(relayToken, account     . address, 0);
-    await assertUpgrader(registry , newUpgrader ._address);
-    await assertOwner(relayToken  , account.address);
-    await assertOwner(oldConverter, account.address);
-    await assertOwner(newConverter, account.address);
+    await assertBalance (bntToken    , newUpgrader ._address, bntTotal);
+    await assertBalance (bntToken    , newConverter._address, 0);
+    await assertBalance (bntToken    , account     . address, bntBalance, bntTotal);
+    await assertBalance (ethToken    , oldConverter._address, ethBalance);
+    await assertBalance (ethToken    , newConverter._address, 0);
+    await assertBalance (relayToken  , airDropper  ._address, 0);
+    await assertBalance (relayToken  , account     . address, 0);
+    await assertUpgrader(registry    , newUpgrader ._address);
+    await assertOwner   (relayToken  , account     . address);
+    await assertOwner   (oldConverter, account     . address);
+    await assertOwner   (newConverter, account     . address);
 
     await web3Func(send, newUpgrader.methods.execute(oldConverter._address, newConverter._address, airDropper._address, BNT_AMOUNT));
 
-    await assertBalance(bntToken  , newUpgrader ._address, 0);
-    await assertBalance(bntToken  , newConverter._address, BNT_AMOUNT);
-    await assertBalance(bntToken  , account     . address, bntBalance, BNT_AMOUNT);
-    await assertBalance(ethToken  , oldConverter._address, 0);
-    await assertBalance(ethToken  , newConverter._address, ethBalance);
-    await assertBalance(relayToken, airDropper  ._address, BNT_AMOUNT);
-    await assertBalance(relayToken, account     . address, BNT_AMOUNT);
-    await assertUpgrader(registry , newUpgrader ._address);
-    await assertOwner(relayToken  , newConverter._address);
-    await assertOwner(oldConverter, newUpgrader ._address);
-    await assertOwner(newConverter, newUpgrader ._address);
+    await assertBalance (bntToken    , newUpgrader ._address, 0);
+    await assertBalance (bntToken    , newConverter._address, BNT_AMOUNT);
+    await assertBalance (bntToken    , account     . address, bntBalance, BNT_AMOUNT);
+    await assertBalance (ethToken    , oldConverter._address, 0);
+    await assertBalance (ethToken    , newConverter._address, ethBalance);
+    await assertBalance (relayToken  , airDropper  ._address, BNT_AMOUNT);
+    await assertBalance (relayToken  , account     . address, BNT_AMOUNT);
+    await assertUpgrader(registry    , newUpgrader ._address);
+    await assertOwner   (relayToken  , newConverter._address);
+    await assertOwner   (oldConverter, newUpgrader ._address);
+    await assertOwner   (newConverter, newUpgrader ._address);
 
     await web3Func(send, oldConverter.methods.acceptOwnership());
     await web3Func(send, newConverter.methods.acceptOwnership());
     await web3Func(send, registry    .methods.registerAddress(ID, oldUpgrader._address));
 
-    await assertUpgrader(registry , oldUpgrader ._address);
-    await assertOwner(oldConverter, account.address);
-    await assertOwner(newConverter, account.address);
+    await assertUpgrader(registry    , oldUpgrader._address);
+    await assertOwner   (oldConverter, account    . address);
+    await assertOwner   (newConverter, account    . address);
 
     if (web3.currentProvider.constructor.name == "WebsocketProvider")
         web3.currentProvider.connection.close();
