@@ -93,14 +93,14 @@ contract("FixedSupplyUpgrader", function(accounts) {
         await registry.registerAddress(identifier, oldUpgrader.address, {from: deployer});
         assert.equal(await registry.addressOf(identifier), oldUpgrader.address);
     });
+
+    async function assertBalance(token, address, expected) {
+        const actual = await token.balanceOf(address);
+        assert.equal(`${actual}`, `${expected}`);
+    }
+
+    async function assertOwner(instance, expected) {
+        const actual = await instance.owner();
+        assert.equal(`${actual}`, `${expected}`);
+    }
 });
-
-async function assertBalance(token, address, expected) {
-    const actual = await token.balanceOf(address);
-    assert.equal(`${actual}`, `${expected}`);
-}
-
-async function assertOwner(instance, expected) {
-    const actual = await instance.owner();
-    assert.equal(`${actual}`, `${expected}`);
-}
