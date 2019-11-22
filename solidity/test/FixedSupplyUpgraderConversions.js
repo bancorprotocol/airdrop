@@ -1,11 +1,11 @@
 contract("FixedSupplyUpgraderConversions", function(accounts) {
     const account = accounts[0];
 
-    const bntAmount = web3.toBigNumber("1e18");
-    const bntBuffer = web3.toBigNumber("1e12");
     const supply    = web3.toBigNumber("1e24");
     const reserve   = web3.toBigNumber("1e22");
     const amount    = web3.toBigNumber("1e20");
+    const bntAmount = web3.toBigNumber("1e18");
+    const bntBuffer = web3.toBigNumber("1e16");
 
     const config = {
         "etherTokenParams": {
