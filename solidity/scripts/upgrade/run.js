@@ -200,9 +200,9 @@ async function run() {
     await assertOwner  (oldConverter, deployer    . address);
     await assertOwner  (newConverter, deployer    . address);
 
-    await send(web3, wallet  , gasPrice, bntToken   .methods.approve(newUpgrader._address, bntBalance));
+    await send(web3, wallet  , gasPrice, bntToken   .methods.approve(newUpgrader ._address, bntBalance));
     await send(web3, deployer, gasPrice, newUpgrader.methods.execute(oldConverter._address, newConverter._address, wallet.address, airDropper._address));
-    await send(web3, wallet  , gasPrice, bntToken   .methods.approve(newUpgrader._address, 0));
+    await send(web3, wallet  , gasPrice, bntToken   .methods.approve(newUpgrader ._address, 0));
 
     await assertBalance(ethToken    , oldConverter._address, 0);
     await assertBalance(ethToken    , newConverter._address, ethBalance);
