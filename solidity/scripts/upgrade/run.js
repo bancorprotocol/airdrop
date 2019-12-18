@@ -171,7 +171,7 @@ async function run() {
 
     const oldConverter = deployed(web3, "BancorConverter"        , get().oldConverter.addr);
     const registry     = deployed(web3, "ContractRegistry"       , await rpc(oldConverter.methods.registry()));
-    const ethToken     = deployed(web3, "EtherToken"             , await rpc(oldConverter.methods.connectorTokens(0)));
+    const ethToken     = deployed(web3, "EtherToken"             , await rpc(oldConverter.methods.reserveTokens(0)));
     const bntToken     = deployed(web3, "SmartToken"             , await rpc(oldConverter.methods.token()));
     const oldUpgrader  = deployed(web3, "BancorConverterUpgrader", await rpc(registry.methods.addressOf(ID)));
 

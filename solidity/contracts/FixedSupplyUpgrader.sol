@@ -5,8 +5,8 @@ import 'bancor-contracts/solidity/contracts/token/interfaces/ISmartToken.sol';
 
 interface IConverterWrapper {
     function token() external view returns (IERC20Token);
-    function connectorTokens(uint256 _index) external view returns (IERC20Token);
-    function getConnectorBalance(IERC20Token _connectorToken) external view returns (uint256);
+    function reserveTokens(uint256 _index) external view returns (IERC20Token);
+    function getReserveBalance(IERC20Token _reserveToken) external view returns (uint256);
     function withdrawTokens(IERC20Token _token, address _to, uint256 _amount) external;
     function disableConversions(bool _disable) external;
     function transferOwnership(address _newOwner) external;
@@ -26,14 +26,15 @@ contract FixedSupplyUpgrader is TokenHolder {
         validAddress(_communityWallet)
     {
         IERC20Token bntToken = _oldConverter.token();
-        IERC20Token ethToken = _oldConverter.connectorTokens(0);
+        IERC20Token ethToken = _oldConverter.reserveTokens(0);
         ISmartToken relayToken = ISmartToken(_newConverter.token());
         relayToken.acceptOwnership();
         _oldConverter.acceptOwnership();
         _newConverter.acceptOwnership();
         _oldConverter.disableConversions(true);
-        _oldConverter.withdrawTokens(ethToken, _newConverter, _oldConverter.getConnectorBalance(ethToken));
         uint256 bntAmount = bntToken.totalSupply() / 10;
+        uint256 ethAmount = _oldConverter.getReserveBalance(ethToken);
+        _oldConverter.withdrawTokens(ethToken, _newConverter, ethAmount);
         require(bntToken.transferFrom(_bntWallet, _newConverter, bntAmount));
         relayToken.issue(_bntWallet, bntAmount);
         relayToken.issue(_communityWallet, bntAmount);
