@@ -4,7 +4,7 @@ const Web3 = require("web3");
 const CFG_FILE_NAME = process.argv[2];
 const NODE_ADDRESS  = process.argv[3];
 const DEPLOYER_KEY  = process.argv[4];
-const WALLET_KEY    = process.argv[5];
+const RESERVER_KEY  = process.argv[5];
 
 const ARTIFACTS_DIR = __dirname + "/../../build/";
 
@@ -151,7 +151,7 @@ async function run() {
 
     const gasPrice = await getGasPrice(web3);
     const deployer = web3.eth.accounts.privateKeyToAccount(DEPLOYER_KEY);
-    const wallet   = web3.eth.accounts.privateKeyToAccount(WALLET_KEY  );
+    const reserver = web3.eth.accounts.privateKeyToAccount(RESERVER_KEY);
     const web3Func = (func, ...args) => func(web3, deployer, gasPrice, ...args);
 
     if (get().oldConverter == undefined) { // this is a test-scenario
@@ -160,10 +160,10 @@ async function run() {
         const bntToken     = await web3Func(deploy, "bntToken"    , "SmartToken"             , ["Bancor Network Token", "BNT", 18]);
         const oldUpgrader  = await web3Func(deploy, "oldUpgrader" , "BancorConverterUpgrader", [registry._address]);
         const oldConverter = await web3Func(deploy, "oldConverter", "BancorConverter"        , [bntToken._address, registry._address, 0, ethToken._address, 100000]);
-        await web3Func(send, ethToken    .methods.deposit(), "1234");
-        await web3Func(send, ethToken    .methods.transfer(oldConverter._address, "1234"));
-        await web3Func(send, bntToken    .methods.issue(deployer.address, "0x1234567890"));
-        await web3Func(send, bntToken    .methods.transfer(wallet.address, "0x1234567890"));
+        await web3Func(send, ethToken    .methods.deposit(), 1234);
+        await web3Func(send, ethToken    .methods.transfer(oldConverter._address, 1234));
+        await web3Func(send, bntToken    .methods.issue(deployer.address, 123412341234));
+        await web3Func(send, bntToken    .methods.transfer(reserver.address, 123412341234));
         await web3Func(send, bntToken    .methods.transferOwnership(oldConverter._address));
         await web3Func(send, registry    .methods.registerAddress(ID, oldUpgrader._address));
         await web3Func(send, oldConverter.methods.acceptTokenOwnership());
@@ -180,7 +180,7 @@ async function run() {
     const newConverter = await web3Func(deploy, "newConverter", "BancorConverter"    , [relayToken._address, registry._address, 0, bntToken._address, 500000]);
     const newUpgrader  = await web3Func(deploy, "newUpgrader" , "FixedSupplyUpgrader", []);
 
-    const bntBalance = await rpc(bntToken.methods.balanceOf(wallet.address));
+    const bntBalance = await rpc(bntToken.methods.balanceOf(reserver.address));
     const ethBalance = await rpc(ethToken.methods.balanceOf(oldConverter._address));
 
     await web3Func(send, newConverter.methods.addReserve(ethToken._address, 500000));
@@ -191,24 +191,24 @@ async function run() {
 
     await assertBalance(ethToken    , oldConverter._address, ethBalance);
     await assertBalance(ethToken    , newConverter._address, 0);
-    await assertBalance(bntToken    , wallet      . address, bntBalance);
+    await assertBalance(bntToken    , reserver    . address, bntBalance);
     await assertBalance(bntToken    , newConverter._address, 0);
-    await assertBalance(relayToken  , wallet      . address, 0);
+    await assertBalance(relayToken  , reserver    . address, 0);
     await assertBalance(relayToken  , airDropper  ._address, 0);
     await assertAddress(registry    , newUpgrader ._address);
     await assertOwner  (relayToken  , deployer    . address);
     await assertOwner  (oldConverter, deployer    . address);
     await assertOwner  (newConverter, deployer    . address);
 
-    await send(web3, wallet  , gasPrice, bntToken   .methods.approve(newUpgrader ._address, bntBalance));
-    await send(web3, deployer, gasPrice, newUpgrader.methods.execute(oldConverter._address, newConverter._address, wallet.address, airDropper._address));
-    await send(web3, wallet  , gasPrice, bntToken   .methods.approve(newUpgrader ._address, 0));
+    await send(web3, reserver, gasPrice, bntToken   .methods.approve(newUpgrader ._address, bntBalance));
+    await send(web3, deployer, gasPrice, newUpgrader.methods.execute(oldConverter._address, newConverter._address, reserver.address, airDropper._address));
+    await send(web3, reserver, gasPrice, bntToken   .methods.approve(newUpgrader ._address, 0));
 
     await assertBalance(ethToken    , oldConverter._address, 0);
     await assertBalance(ethToken    , newConverter._address, ethBalance);
-    await assertBalance(bntToken    , wallet      . address, Web3.utils.toBN(bntBalance).sub(Web3.utils.toBN(bntBalance).divn(10)));
+    await assertBalance(bntToken    , reserver    . address, Web3.utils.toBN(bntBalance).sub(Web3.utils.toBN(bntBalance).divn(10)));
     await assertBalance(bntToken    , newConverter._address, Web3.utils.toBN(bntBalance).divn(10));
-    await assertBalance(relayToken  , wallet      . address, Web3.utils.toBN(bntBalance).divn(10));
+    await assertBalance(relayToken  , reserver    . address, Web3.utils.toBN(bntBalance).divn(10));
     await assertBalance(relayToken  , airDropper  ._address, Web3.utils.toBN(bntBalance).divn(10));
     await assertAddress(registry    , newUpgrader ._address);
     await assertOwner  (relayToken  , newConverter._address);
