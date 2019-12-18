@@ -1,11 +1,11 @@
 contract("FixedSupplyUpgraderConversions", function(accounts) {
-    const account = accounts[0];
+    const account    = accounts[0];
+    const bntWallet  = accounts[1];
+    const airDropper = accounts[2];
 
-    const supply    = web3.toBigNumber("1e24");
-    const reserve   = web3.toBigNumber("1e22");
-    const amount    = web3.toBigNumber("1e20");
-    const bntAmount = web3.toBigNumber("1e18");
-    const bntBuffer = web3.toBigNumber("1e16");
+    const supply  = web3.toBigNumber("1e24");
+    const reserve = web3.toBigNumber("1e22");
+    const amount  = web3.toBigNumber("1e20");
 
     const config = {
         "etherTokenParams": {
@@ -182,16 +182,8 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         await bancorConverterRegistry.addConverter(bancorConverter2.address);
         await bancorConverterRegistry.addConverter(bancorConverter3.address);
         await bancorConverterRegistry.addConverter(bancorConverter4.address);
-        await bancorNetworkPathFinder.setAnchorToken(etherToken.address));
+        await bancorNetworkPathFinder.setAnchorToken(etherToken.address);
         await bancorNetwork.registerEtherToken(etherToken.address, true);
-
-        for (const token of [smartToken1, smartToken2, erc20TokenA, erc20TokenB, etherToken, smartToken3, smartToken4, smartToken5]) {
-            const allowance = await token.allowance(account, bancorNetwork.address);
-            if (allowance.equals(0)) {
-                console.log("approve", await token.symbol());
-                await token.approve(bancorNetwork.address, supply);
-            }
-        }
     });
 
     it("before execute", async function() {
@@ -210,15 +202,17 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
     });
 
     it("during execute", async function() {
-        await bancorConverter1   .transferOwnership(fixedSupplyUpgrader.address);
-        await bancorConverter5   .transferOwnership(fixedSupplyUpgrader.address);
-        await smartToken5        .transferOwnership(fixedSupplyUpgrader.address);
-        await smartToken1        .transfer(fixedSupplyUpgrader.address, bntAmount.plus(bntBuffer));
-        await contractRegistry   .registerAddress(web3.fromAscii("BancorConverterUpgrader"), fixedSupplyUpgrader.address);
-        await fixedSupplyUpgrader.execute(bancorConverter1.address, bancorConverter5.address, account, bntAmount);
-        await contractRegistry   .registerAddress(web3.fromAscii("BancorConverterUpgrader"), bancorConverterUpgrader.address);
-        await bancorConverter1   .acceptOwnership();
-        await bancorConverter5   .acceptOwnership();
+        await bancorConverter1   .transferOwnership(fixedSupplyUpgrader.address, {from: account});
+        await bancorConverter5   .transferOwnership(fixedSupplyUpgrader.address, {from: account});
+        await smartToken5        .transferOwnership(fixedSupplyUpgrader.address, {from: account});
+        await smartToken1        .transfer(bntWallet, await smartToken1.balanceOf(account), {from: account});
+        await smartToken1        .approve(fixedSupplyUpgrader.address, await smartToken1.totalSupply(), {from: bntWallet});
+        await contractRegistry   .registerAddress(web3.fromAscii("BancorConverterUpgrader"), fixedSupplyUpgrader.address, {from: account});
+        await fixedSupplyUpgrader.execute(bancorConverter1.address, bancorConverter5.address, bntWallet, airDropper, {from: account});
+        await contractRegistry   .registerAddress(web3.fromAscii("BancorConverterUpgrader"), bancorConverterUpgrader.address, {from: account});
+        await smartToken1        .transfer(account, await smartToken1.balanceOf(bntWallet), {from: bntWallet});
+        await bancorConverter1   .acceptOwnership({from: account});
+        await bancorConverter5   .acceptOwnership({from: account});
     });
 
     it("after execute", async function() {
@@ -232,6 +226,13 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
 
     async function claimAndConvert() {
         console.log();
+        for (const token of [smartToken1, smartToken2, erc20TokenA, erc20TokenB, etherToken, smartToken3, smartToken4, smartToken5]) {
+            const allowance = await token.allowance(account, bancorNetwork.address);
+            if (allowance.equals(0)) {
+                console.log("approve", await token.symbol());
+                await token.approve(bancorNetwork.address, await token.totalSupply());
+            }
+        }
         for (const sourceToken of [smartToken1, smartToken2, erc20TokenA, erc20TokenB, etherToken]) {
             for (const targetToken of [smartToken1, smartToken2, erc20TokenA, erc20TokenB]) {
                 if (sourceToken != targetToken) {

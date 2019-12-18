@@ -8,89 +8,87 @@ contract("FixedSupplyUpgrader", function(accounts) {
     let oldUpgrader;
     let newUpgrader;
 
-    const ETH_TOKEN_AMOUNT = 111;
-    const BNT_TOKEN_AMOUNT = 222;
-    const BNT_TOKEN_BUFFER = 333;
-    const BNT_TOKEN_REMAIN = 444;
+    const ETH_SUPPLY = 111;
+    const BNT_SUPPLY = 222;
+    const BNT_AMOUNT = Math.floor(BNT_SUPPLY / 10);
 
-    const deployer   = accounts[1];
-    const upgrader   = accounts[2];
-    const airDropper = accounts[3];
+    const owner      = accounts[1];
+    const nonOwner   = accounts[2];
+    const bntWallet  = accounts[3];
+    const airDropper = accounts[4];
 
     const identifier  = web3.fromAscii("BancorConverterUpgrader");
     const catchRevert = require("bancor-contracts/solidity/test/helpers/Utils.js").catchRevert;
 
     before(async function() {
-        registry     = await artifacts.require("ContractRegistry"       ).new({from: deployer});
-        ethToken     = await artifacts.require("EtherToken"             ).new({from: deployer});
-        bntToken     = await artifacts.require("SmartToken"             ).new("Bancor Network Token", "BNT", 18, {from: deployer});
-        relayToken   = await artifacts.require("SmartToken"             ).new("BNT/ETH Relay Token" , "BRT", 18, {from: deployer});
-        oldConverter = await artifacts.require("BancorConverter"        ).new(bntToken.address  , registry.address, 0, ethToken.address, 100000, {from: deployer});
-        newConverter = await artifacts.require("BancorConverter"        ).new(relayToken.address, registry.address, 0, ethToken.address, 500000, {from: deployer});
-        oldUpgrader  = await artifacts.require("BancorConverterUpgrader").new(registry.address, {from: upgrader});
-        newUpgrader  = await artifacts.require("FixedSupplyUpgrader"    ).new({from: upgrader});
-        await registry.registerAddress(identifier, newUpgrader.address, {from: deployer});
-        await newConverter.addReserve(bntToken.address, 500000, {from: deployer});
-        await relayToken  .transferOwnership(newUpgrader.address, {from: deployer});
-        await oldConverter.transferOwnership(newUpgrader.address, {from: deployer});
-        await newConverter.transferOwnership(newUpgrader.address, {from: deployer});
-        await ethToken.deposit({from: deployer, value: ETH_TOKEN_AMOUNT});
-        await ethToken.transfer(oldConverter.address, ETH_TOKEN_AMOUNT, {from: deployer});
-        await bntToken.issue(upgrader, BNT_TOKEN_AMOUNT + BNT_TOKEN_BUFFER + BNT_TOKEN_REMAIN, {from: deployer});
-        await bntToken.transfer(newUpgrader.address, BNT_TOKEN_AMOUNT + BNT_TOKEN_BUFFER, {from: upgrader});
-        await bntToken.transferOwnership(oldConverter.address, {from: deployer});
-        await oldConverter.acceptTokenOwnership({from: deployer});
+        registry     = await artifacts.require("ContractRegistry"       ).new({from: owner});
+        ethToken     = await artifacts.require("EtherToken"             ).new({from: owner});
+        bntToken     = await artifacts.require("SmartToken"             ).new("Bancor Network Token", "BNT", 18, {from: owner});
+        relayToken   = await artifacts.require("SmartToken"             ).new("BNT/ETH Relay Token" , "BRT", 18, {from: owner});
+        oldConverter = await artifacts.require("BancorConverter"        ).new(bntToken.address  , registry.address, 0, ethToken.address, 100000, {from: owner});
+        newConverter = await artifacts.require("BancorConverter"        ).new(relayToken.address, registry.address, 0, ethToken.address, 500000, {from: owner});
+        oldUpgrader  = await artifacts.require("BancorConverterUpgrader").new(registry.address, {from: owner});
+        newUpgrader  = await artifacts.require("FixedSupplyUpgrader"    ).new({from: owner});
+        await registry.registerAddress(identifier, newUpgrader.address, {from: owner});
+        await newConverter.addReserve(bntToken.address, 500000, {from: owner});
+        await relayToken  .transferOwnership(newUpgrader.address, {from: owner});
+        await oldConverter.transferOwnership(newUpgrader.address, {from: owner});
+        await newConverter.transferOwnership(newUpgrader.address, {from: owner});
+        await ethToken.deposit({from: owner, value: ETH_SUPPLY});
+        await ethToken.transfer(oldConverter.address, ETH_SUPPLY, {from: owner});
+        await bntToken.issue(bntWallet, BNT_SUPPLY, {from: owner});
+        await bntToken.approve(newUpgrader.address, BNT_SUPPLY, {from: bntWallet});
+        await bntToken.transferOwnership(oldConverter.address, {from: owner});
+        await oldConverter.acceptTokenOwnership({from: owner});
     });
 
     it("function execute should abort with an error if called by a non-owner", async function() {
-        await catchRevert(newUpgrader.execute(oldConverter.address, newConverter.address, airDropper, BNT_TOKEN_AMOUNT, {from: deployer}));
-        await assertBalance(bntToken    , newUpgrader .address, BNT_TOKEN_AMOUNT + BNT_TOKEN_BUFFER);
-        await assertBalance(bntToken    , newConverter.address, 0);
-        await assertBalance(bntToken    , upgrader            , BNT_TOKEN_REMAIN);
-        await assertBalance(ethToken    , oldConverter.address, ETH_TOKEN_AMOUNT);
+        await catchRevert(newUpgrader.execute(oldConverter.address, newConverter.address, bntWallet, airDropper, {from: nonOwner}));
+        await assertBalance(ethToken    , oldConverter.address, ETH_SUPPLY);
         await assertBalance(ethToken    , newConverter.address, 0);
+        await assertBalance(bntToken    , bntWallet           , BNT_SUPPLY);
+        await assertBalance(bntToken    , newConverter.address, 0);
+        await assertBalance(relayToken  , bntWallet           , 0);
         await assertBalance(relayToken  , airDropper          , 0);
-        await assertBalance(relayToken  , upgrader            , 0);
-        await assertOwner  (relayToken  , deployer);
-        await assertOwner  (oldConverter, deployer);
-        await assertOwner  (newConverter, deployer);
+        await assertOwner  (relayToken  , owner);
+        await assertOwner  (oldConverter, owner);
+        await assertOwner  (newConverter, owner);
     });
 
     it("function execute should complete successfully if called by the owner", async function() {
-        await newUpgrader.execute(oldConverter.address, newConverter.address, airDropper, BNT_TOKEN_AMOUNT, {from: upgrader});
-        await assertBalance(bntToken    , newUpgrader .address, 0);
-        await assertBalance(bntToken    , newConverter.address, BNT_TOKEN_AMOUNT);
-        await assertBalance(bntToken    , upgrader            , BNT_TOKEN_REMAIN + BNT_TOKEN_BUFFER);
+        await newUpgrader.execute(oldConverter.address, newConverter.address, bntWallet, airDropper, {from: owner});
         await assertBalance(ethToken    , oldConverter.address, 0);
-        await assertBalance(ethToken    , newConverter.address, ETH_TOKEN_AMOUNT);
-        await assertBalance(relayToken  , airDropper          , BNT_TOKEN_AMOUNT);
-        await assertBalance(relayToken  , upgrader            , BNT_TOKEN_AMOUNT);
+        await assertBalance(ethToken    , newConverter.address, ETH_SUPPLY);
+        await assertBalance(bntToken    , bntWallet           , BNT_SUPPLY - BNT_AMOUNT);
+        await assertBalance(bntToken    , newConverter.address, BNT_AMOUNT);
+        await assertBalance(relayToken  , bntWallet           , BNT_AMOUNT);
+        await assertBalance(relayToken  , airDropper          , BNT_AMOUNT);
         await assertOwner  (relayToken  , newConverter.address);
         await assertOwner  (oldConverter, newUpgrader .address);
         await assertOwner  (newConverter, newUpgrader .address);
     });
 
     it("accepting ownership should abort with an error if called by a non-owner", async function() {
-        await catchRevert(oldConverter.acceptOwnership({from: deployer}));
-        await catchRevert(newConverter.acceptOwnership({from: deployer}));
+        await catchRevert(oldConverter.acceptOwnership({from: nonOwner}));
+        await catchRevert(newConverter.acceptOwnership({from: nonOwner}));
         await assertOwner(oldConverter, newUpgrader.address);
         await assertOwner(newConverter, newUpgrader.address);
     });
 
     it("accepting ownership should complete successfully if called by the owner", async function() {
-        await oldConverter.acceptOwnership({from: upgrader});
-        await newConverter.acceptOwnership({from: upgrader});
-        await assertOwner(oldConverter, upgrader);
-        await assertOwner(newConverter, upgrader);
+        await oldConverter.acceptOwnership({from: owner});
+        await newConverter.acceptOwnership({from: owner});
+        await assertOwner(oldConverter, owner);
+        await assertOwner(newConverter, owner);
     });
 
     it("reinstating upgrader should abort with an error if called by a non-owner", async function() {
-        await catchRevert(registry.registerAddress(identifier, oldUpgrader.address, {from: upgrader}));
+        await catchRevert(registry.registerAddress(identifier, oldUpgrader.address, {from: nonOwner}));
         await assertAddress(registry, newUpgrader.address);
     });
 
     it("reinstating upgrader should complete successfully if called by the owner", async function() {
-        await registry.registerAddress(identifier, oldUpgrader.address, {from: deployer});
+        await registry.registerAddress(identifier, oldUpgrader.address, {from: owner});
         await assertAddress(registry, oldUpgrader.address);
     });
 

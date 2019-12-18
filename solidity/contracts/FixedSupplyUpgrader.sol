@@ -18,10 +18,11 @@ contract FixedSupplyUpgrader is TokenHolder {
     constructor() TokenHolder() public {
     }
 
-    function execute(IConverterWrapper _oldConverter, IConverterWrapper _newConverter, address _communityWallet, uint256 _bntAmount) external
+    function execute(IConverterWrapper _oldConverter, IConverterWrapper _newConverter, address _bntWallet, address _communityWallet) external
         ownerOnly
         validAddress(_oldConverter)
         validAddress(_newConverter)
+        validAddress(_bntWallet)
         validAddress(_communityWallet)
     {
         IERC20Token bntToken = _oldConverter.token();
@@ -32,10 +33,10 @@ contract FixedSupplyUpgrader is TokenHolder {
         _newConverter.acceptOwnership();
         _oldConverter.disableConversions(true);
         _oldConverter.withdrawTokens(ethToken, _newConverter, _oldConverter.getConnectorBalance(ethToken));
-        require(bntToken.transfer(_newConverter, _bntAmount));
-        require(bntToken.transfer(owner, bntToken.balanceOf(this)));
-        relayToken.issue(_communityWallet, _bntAmount);
-        relayToken.issue(owner, _bntAmount);
+        uint256 bntAmount = bntToken.totalSupply() / 10;
+        require(bntToken.transferFrom(_bntWallet, _newConverter, bntAmount));
+        relayToken.issue(_bntWallet, bntAmount);
+        relayToken.issue(_communityWallet, bntAmount);
         relayToken.transferOwnership(_newConverter);
         _newConverter.acceptTokenOwnership();
         _newConverter.transferOwnership(owner);
