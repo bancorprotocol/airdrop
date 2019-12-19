@@ -15,4 +15,3 @@ import 'bancor-contracts/solidity/contracts/token/EtherToken.sol';
 import 'bancor-contracts/solidity/contracts/token/SmartToken.sol';
 import 'bancor-contracts/solidity/contracts/utility/ContractFeatures.sol';
 import 'bancor-contracts/solidity/contracts/utility/ContractRegistry.sol';
-import 'bancor-contracts/solidity/contracts/utility/NonStandardTokenRegistry.sol';

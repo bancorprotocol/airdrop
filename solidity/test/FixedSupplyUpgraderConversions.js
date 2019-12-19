@@ -92,7 +92,6 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
     let contractRegistry           ;
     let contractFeatures           ;
     let fixedSupplyUpgrader        ;
-    let nonStandardTokenRegistry   ;
     let bancorFormula              ;
     let bancorNetwork              ;
     let bancorNetworkPathFinder    ;
@@ -121,7 +120,6 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         contractRegistry            = await artifacts.require("ContractRegistry"           ).new();
         contractFeatures            = await artifacts.require("ContractFeatures"           ).new();
         fixedSupplyUpgrader         = await artifacts.require("FixedSupplyUpgrader"        ).new();
-        nonStandardTokenRegistry    = await artifacts.require("NonStandardTokenRegistry"   ).new();
         bancorFormula               = await artifacts.require("BancorFormula"              ).new();
         bancorNetwork               = await artifacts.require("BancorNetwork"              ).new(contractRegistry.address);
         bancorNetworkPathFinder     = await artifacts.require("BancorNetworkPathFinder"    ).new(contractRegistry.address);
@@ -154,7 +152,6 @@ contract("FixedSupplyUpgraderConversions", function(accounts) {
         await bancorConverter5.addReserve(etherToken .address, config.converter5Params.ratio2);
         await contractRegistry.registerAddress(web3.fromAscii("ContractRegistry"           ), contractRegistry           .address);
         await contractRegistry.registerAddress(web3.fromAscii("ContractFeatures"           ), contractFeatures           .address);
-        await contractRegistry.registerAddress(web3.fromAscii("NonStandardTokenRegistry"   ), nonStandardTokenRegistry   .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorFormula"              ), bancorFormula              .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorNetwork"              ), bancorNetwork              .address);
         await contractRegistry.registerAddress(web3.fromAscii("BancorNetworkPathFinder"    ), bancorNetworkPathFinder    .address);
