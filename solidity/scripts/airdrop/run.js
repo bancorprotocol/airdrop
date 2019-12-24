@@ -232,7 +232,6 @@ async function run() {
     const bancorX    = deployed(web3, "BancorX"   , get().bancorX   .addr);
 
     assert.equal(lines[0].split(" ")[0], bancorX._address, "BancorX address mismatch");
-    assert.equal(await rpc(relayToken.methods.totalSupply()), getTotal(), "RelayToken supply mismatch");
 
     const updateFunc = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
     const saveAll = () => execute(web3, web3Func, "saveAll", airDropper.methods.saveBalances, (targets, amounts) => airDropper.methods.saveAll(targets, amounts), lines);
