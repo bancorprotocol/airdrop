@@ -28,8 +28,8 @@ contract("AirDropperBancorX", function(accounts) {
     beforeEach(async function() {
         registry   = await artifacts.require("ContractRegistry").new({from: owner});
         airDropper = await artifacts.require("AirDropper"      ).new({from: owner});
-        relayToken = await artifacts.require("SmartToken"      ).new("smartTokenName", "smartTokenSymbol", 0, {from: owner});
-        dummyToken = await artifacts.require("ERC20Token"      ).new("erc20TokenName", "erc20TokenSymbol", 0, 0, {from: owner});
+        relayToken = await artifacts.require("SmartToken"      ).new("name", "symbol", 0, {from: owner});
+        dummyToken = await artifacts.require("ERC20Token"      ).new("name", "symbol", 0, 0, {from: owner});
         converter  = await artifacts.require("BancorConverter" ).new(relayToken.address, registry.address, 0, dummyToken.address, 1000000, {from: owner});
         bancorX    = await artifacts.require("BancorX"         ).new(...BANCOR_X_PARAMS, reporters.length, registry.address, relayToken.address, true, {from: owner});
 

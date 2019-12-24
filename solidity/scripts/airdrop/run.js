@@ -199,10 +199,10 @@ async function run() {
     if (TEST_MODE) {
         const total = getTotal();
 
-        const airDropper = await web3Func(deploy, "airDropper", "AirDropper"      , []);
         const registry   = await web3Func(deploy, "registry"  , "ContractRegistry", []);
-        const dummyToken = await web3Func(deploy, "dummyToken", "SmartToken"      , ["name", "symbol", 0]);
+        const airDropper = await web3Func(deploy, "airDropper", "AirDropper"      , []);
         const relayToken = await web3Func(deploy, "relayToken", "SmartToken"      , ["name", "symbol", 0]);
+        const dummyToken = await web3Func(deploy, "dummyToken", "ERC20Token"      , ["name", "symbol", 0, 0]);
         const converter  = await web3Func(deploy, "converter" , "BancorConverter" , [relayToken._address, registry._address, 0, dummyToken._address, 1000000]);
         const bancorX    = await web3Func(deploy, "bancorX"   , "BancorX"         , [total, total, 0, total, 0, registry._address, relayToken._address, true]);
 
