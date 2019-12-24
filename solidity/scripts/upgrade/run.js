@@ -20,7 +20,8 @@ function set(record) {
     fs.writeFileSync(CFG_FILE_NAME, JSON.stringify({...get(), ...record}, null, 4));
 }
 
-async function scan() {
+async function scan(message) {
+    process.stdout.write(message);
     return await new Promise(function(resolve, reject) {
         process.stdin.resume();
         process.stdin.once("data", function(data) {
@@ -33,8 +34,7 @@ async function scan() {
 async function getGasPrice(web3) {
     while (true) {
         const nodeGasPrice = await web3.eth.getGasPrice();
-        process.stdout.write(`Enter gas-price or leave empty to use ${nodeGasPrice}: `);
-        const userGasPrice = await scan();
+        const userGasPrice = await scan(`Enter gas-price or leave empty to use ${nodeGasPrice}: `);
         if (/^\d+$/.test(userGasPrice))
             return userGasPrice;
         if (userGasPrice == "")
@@ -45,8 +45,7 @@ async function getGasPrice(web3) {
 
 async function getTransactionReceipt(web3) {
     while (true) {
-        process.stdout.write("Enter transaction-hash or leave empty to retry: ");
-        const hash = await scan();
+        const hash = await scan("Enter transaction-hash or leave empty to retry: ");
         if (/^0x([0-9A-Fa-f]{64})$/.test(hash)) {
             const receipt = await web3.eth.getTransactionReceipt(hash);
             if (receipt)
@@ -175,8 +174,8 @@ async function run() {
     const bntToken     = deployed(web3, "SmartToken"             , await rpc(oldConverter.methods.token()));
     const oldUpgrader  = deployed(web3, "BancorConverterUpgrader", await rpc(registry.methods.addressOf(ID)));
 
+    const airDropper   = await web3Func(deploy, "airDropper"  , "AirDropper"         , []);
     const relayToken   = await web3Func(deploy, "relayToken"  , "SmartToken"         , get().relayTokenParams);
-    const airDropper   = await web3Func(deploy, "airDropper"  , "AirDropper"         , [relayToken._address]);
     const newConverter = await web3Func(deploy, "newConverter", "BancorConverter"    , [relayToken._address, registry._address, 0, bntToken._address, 500000]);
     const newUpgrader  = await web3Func(deploy, "newUpgrader" , "FixedSupplyUpgrader", []);
 
