@@ -195,7 +195,7 @@ async function run() {
     const web3Func = (func, ...args) => func(web3, account, gasPrice, ...args);
 
     const lines    = fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
-    const getTotal = () => lines.map(line => Web3.utils.toBN(line.split(" ")[1])).reduce((a, b) => a.add(b), Web3.utils.toBN(0)).toString();
+    const getTotal = () => lines.map(line => line.split(" ")).reduce((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
     const getHash  = () => lines.map(line => line.split(" ")).reduce((a, b) => Web3.utils.soliditySha3(a, b[0], b[1]), "0x".padEnd(66, "0"));
 
     if (TEST_MODE) {
