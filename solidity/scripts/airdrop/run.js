@@ -233,13 +233,12 @@ async function run() {
 
     assert.equal(lines[0].split(" ")[0], bancorX._address, "BancorX address mismatch");
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
+    const hash = iterator((a, b) => Web3.utils.soliditySha3(a, b[0], b[1]), Web3.utils.padRight("0x", 64));
 
     const updateFunc = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
     const saveAll = () => execute(web3, web3Func, "saveAll", airDropper.methods.saveBalances, (targets, amounts) => airDropper.methods.saveAll(targets, amounts), lines);
     const sendEos = () => execute(web3, web3Func, "sendEos", airDropper.methods.sendBalances, (targets, amounts) => airDropper.methods.sendEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
     const sendEth = () => execute(web3, web3Func, "sendEth", airDropper.methods.sendBalances, (targets, amounts) => airDropper.methods.sendEth(relayToken._address, targets, amounts), lines.slice(1));
-
-    const hash = iterator((a, b) => Web3.utils.soliditySha3(a, b[0], b[1]), Web3.utils.padRight("0x", 64));
 
     await saveAll();
     await printStatus(relayToken, airDropper);
