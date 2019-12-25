@@ -148,7 +148,7 @@ async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
     const transactions = get()[keyName];
     while (transactions.some(x => !x.done)) {
         for (let i = 0; i < transactions.length; i++) {
-            if (transactions[i].blockNumber == undefined) {
+            if (!transactions[i].blockNumber) {
                 const bgn = i * CHUNK_SIZE;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
@@ -164,7 +164,7 @@ async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
                     set({[keyName]: transactions});
                 }
             }
-            else if (transactions[i].done == undefined) {
+            else if (!transactions[i].done) {
                 const bgn = i * CHUNK_SIZE;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
