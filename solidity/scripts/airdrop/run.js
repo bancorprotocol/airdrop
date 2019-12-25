@@ -145,39 +145,39 @@ async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
     if (get()[keyName] == undefined)
         set({[keyName]: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
 
-    const transaction = get()[keyName];
-    while (transaction.some(x => !x.done)) {
-        for (let i = 0; i < transaction.length; i++) {
-            if (transaction[i].blockNumber == undefined) {
+    const transactions = get()[keyName];
+    while (transactions.some(x => !x.done)) {
+        for (let i = 0; i < transactions.length; i++) {
+            if (transactions[i].blockNumber == undefined) {
                 const bgn = i * CHUNK_SIZE;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
                     const end = (i + 1) * CHUNK_SIZE;
                     const receipt = await web3Func(send, setBalance(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
-                    transaction[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
-                    console.log(`${keyName} ${i} submitted: ${JSON.stringify(transaction[i])}`);
-                    set({[keyName]: transaction});
+                    transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
+                    console.log(`${keyName} ${i} submitted: ${JSON.stringify(transactions[i])}`);
+                    set({[keyName]: transactions});
                 }
                 else {
-                    transaction[i].blockNumber = await web3.eth.getBlockNumber();
-                    console.log(`${keyName} ${i} confirmed: ${JSON.stringify(transaction[i])}`);
-                    set({[keyName]: transaction});
+                    transactions[i].blockNumber = await web3.eth.getBlockNumber();
+                    console.log(`${keyName} ${i} confirmed: ${JSON.stringify(transactions[i])}`);
+                    set({[keyName]: transactions});
                 }
             }
-            else if (transaction[i].done == undefined) {
+            else if (transactions[i].done == undefined) {
                 const bgn = i * CHUNK_SIZE;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
                     const end = (i + 1) * CHUNK_SIZE;
                     const receipt = await web3Func(send, setBalance(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
-                    transaction[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
-                    console.log(`${keyName} ${i} resubmitted: ${JSON.stringify(transaction[i])}`);
-                    set({[keyName]: transaction});
+                    transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
+                    console.log(`${keyName} ${i} resubmitted: ${JSON.stringify(transactions[i])}`);
+                    set({[keyName]: transactions});
                 }
-                else if (transaction[i].blockNumber + 12 <= await web3.eth.getBlockNumber()) {
-                    transaction[i].done = true;
-                    console.log(`${keyName} ${i} concluded: ${JSON.stringify(transaction[i])}`);
-                    set({[keyName]: transaction});
+                else if (transactions[i].blockNumber + 12 <= await web3.eth.getBlockNumber()) {
+                    transactions[i].done = true;
+                    console.log(`${keyName} ${i} concluded: ${JSON.stringify(transactions[i])}`);
+                    set({[keyName]: transactions});
                 }
                 else {
                     web3.currentProvider.send({method: "evm_mine"}, () => {});
