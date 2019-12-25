@@ -12,6 +12,8 @@ const TEST_MODE     = process.argv[7];
 
 const ARTIFACTS_DIR = __dirname + "/../../build/";
 
+const BANCOR_X_DEST = "airdropsdac1";
+
 const MIN_GAS_LIMIT = 0;
 
 function get() {
@@ -224,7 +226,7 @@ async function run() {
         await executePhase(converter .methods.acceptTokenOwnership());
         await executePhase(converter .methods.setBancorX(bancorX._address));
 
-        lines[0] = [bancorX._address, lines[0].split(" ")[1], Web3.utils.asciiToHex(lines[0].split(" ")[2])].join(" ");
+        lines[0] = bancorX._address + " " + lines[0].split(" ")[1];
     }
 
     const airDropper = deployed(web3, "AirDropper", get().airDropper.addr);
@@ -232,6 +234,7 @@ async function run() {
     const bancorX    = deployed(web3, "BancorX"   , get().bancorX   .addr);
 
     assert.equal(lines[0].split(" ")[0], bancorX._address, "BancorX address mismatch");
+    lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
 
     const updateFunc = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
     const saveAll = () => execute(web3, web3Func, "saveAll", airDropper.methods.saveBalances, (targets, amounts) => airDropper.methods.saveAll(targets, amounts), lines);
