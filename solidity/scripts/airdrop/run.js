@@ -193,13 +193,11 @@ async function run() {
     const gasPrice = await getGasPrice(web3);
     const account  = web3.eth.accounts.privateKeyToAccount(PRIVATE_KEY);
     const web3Func = (func, ...args) => func(web3, account, gasPrice, ...args);
-
     const lines    = fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
-    const getTotal = () => lines.map(line => line.split(" ")).reduce((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
-    const getHash  = () => lines.map(line => line.split(" ")).reduce((a, b) => Web3.utils.soliditySha3(a, b[0], b[1]), "0x".padEnd(66, "0"));
+    const iterator = (func, initialValue) => lines.map(line => line.split(" ")).reduce(func, initialValue);
 
     if (TEST_MODE) {
-        const total = getTotal();
+        const total = iterator((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
 
         const registry   = await web3Func(deploy, "registry"  , "ContractRegistry", []);
         const airDropper = await web3Func(deploy, "airDropper", "AirDropper"      , []);
@@ -241,9 +239,11 @@ async function run() {
     const sendEos = () => execute(web3, web3Func, "sendEos", airDropper.methods.sendBalances, (targets, amounts) => airDropper.methods.sendEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
     const sendEth = () => execute(web3, web3Func, "sendEth", airDropper.methods.sendBalances, (targets, amounts) => airDropper.methods.sendEth(relayToken._address, targets, amounts), lines.slice(1));
 
+    const hash = iterator((a, b) => Web3.utils.soliditySha3(a, b[0], b[1]), Web3.utils.padRight("0x", 64));
+
     await saveAll();
     await printStatus(relayToken, airDropper);
-    await updateState(airDropper, updateFunc, getHash());
+    await updateState(airDropper, updateFunc, hash);
     await sendEos();
     await printStatus(relayToken, airDropper);
     await sendEth();
