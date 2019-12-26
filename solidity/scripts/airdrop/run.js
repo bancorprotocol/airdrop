@@ -194,10 +194,10 @@ async function run() {
     const account  = web3.eth.accounts.privateKeyToAccount(PRIVATE_KEY);
     const web3Func = (func, ...args) => func(web3, account, gasPrice, ...args);
     const lines    = fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
-    const iterator = (func, initialValue) => lines.map(line => line.split(" ")).reduce(func, initialValue);
+    const iterator = (f, g) => lines.map(line => line.split(" ")).reduce((a, b) => f(a, Web3.utils.toBN(g(b))), Web3.utils.toBN(0));
 
     if (TEST_MODE) {
-        const total = iterator((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
+        const total = iterator((a, b) => a.add(b), b => b[1]).toString();
 
         const registry   = await web3Func(deploy, "registry"  , "ContractRegistry", []);
         const airDropper = await web3Func(deploy, "airDropper", "AirDropper"      , []);
@@ -233,7 +233,7 @@ async function run() {
 
     assert.equal(lines[0].split(" ")[0], bancorX._address, "BancorX address mismatch");
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
-    const hash = iterator((a, b) => Web3.utils.soliditySha3(a, b[0], b[1]), Web3.utils.padRight("0x", 64));
+    const hash = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
     const updateFunc = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
     const saveAll = () => execute(web3, web3Func, "saveAll", airDropper.methods.saveBalances, (targets, amounts) => airDropper.methods.saveAll(targets, amounts), lines);

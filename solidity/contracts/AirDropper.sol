@@ -44,7 +44,7 @@ contract AirDropper is TokenHolder {
             uint256 amount = _amounts[i];
             require(saveBalances[target] == 0);
             saveBalances[target] = amount;
-            hash = keccak256(abi.encodePacked(hash, _targets[i], _amounts[i]));
+            hash ^= keccak256(abi.encodePacked(_targets[i], _amounts[i]));
         }
     }
 
