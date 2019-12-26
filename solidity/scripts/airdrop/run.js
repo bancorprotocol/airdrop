@@ -231,7 +231,7 @@ async function run() {
     const relayToken = deployed(web3, "SmartToken", get().relayToken.addr);
     const bancorX    = deployed(web3, "BancorX"   , get().bancorX   .addr);
 
-    assert.equal(lines[0].split(" ")[0], bancorX._address, "BancorX address mismatch");
+    lines.unshift(lines.splice(lines.findIndex(line => line.split(" ")[0] == bancorX._address), 1)[0]);
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
     const hash = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
