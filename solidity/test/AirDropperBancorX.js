@@ -7,11 +7,10 @@ contract("AirDropperBancorX", function(accounts) {
     let bancorX;
 
     const owner     = accounts[1];
-    const sender    = accounts[2];
-    const nonOwner  = accounts[3];
-    const nonSender = accounts[4];
-    const receiver  = accounts[5];
-    const reporters = accounts.slice(6);
+    const executor  = accounts[2];
+    const stranger  = accounts[3];
+    const receiver  = accounts[4];
+    const reporters = accounts.slice(5);
 
     const catchRevert = require("bancor-contracts/solidity/test/helpers/Utils.js").catchRevert;
 
@@ -43,46 +42,46 @@ contract("AirDropperBancorX", function(accounts) {
     });
 
     describe("negative assertion:", function() {
-        it("function sendEos should abort with an error if called by a non-sender", async function() {
-            await airDropper.set(sender, {from: owner});
-            await airDropper.saveAll([bancorX.address], [TEST_AMOUNT], {from: sender});
-            await airDropper.disableSave({from: owner});
-            await airDropper.enableSend({from: owner});
-            await catchRevert(airDropper.sendEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: nonSender}));
+        it("function transferEos should abort with an error if called by a non-executor", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeAll([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.disableStore({from: owner});
+            await airDropper.enableTransfer({from: owner});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: stranger}));
         });
 
-        it("function sendEos should abort with an error if called before disableSave", async function() {
-            await airDropper.set(sender, {from: owner});
-            await airDropper.saveAll([bancorX.address], [TEST_AMOUNT], {from: sender});
-            await catchRevert(airDropper.sendEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: sender}));
+        it("function transferEos should abort with an error if called before disableStore", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeAll([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
         });
 
-        it("function sendEos should abort with an error if called before enableSend", async function() {
-            await airDropper.set(sender, {from: owner});
-            await airDropper.saveAll([bancorX.address], [TEST_AMOUNT], {from: sender});
-            await airDropper.disableSave({from: owner});
-            await catchRevert(airDropper.sendEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: sender}));
+        it("function transferEos should abort with an error if called before enableTransfer", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeAll([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.disableStore({from: owner});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
         });
 
-        it("function sendEos should abort with an error if called twice", async function() {
-            await airDropper.set(sender, {from: owner});
-            await airDropper.saveAll([bancorX.address], [TEST_AMOUNT], {from: sender});
-            await airDropper.disableSave({from: owner});
-            await airDropper.enableSend({from: owner});
-            await airDropper.sendEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: sender});
-            await catchRevert(airDropper.sendEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: sender}));
+        it("function transferEos should abort with an error if called twice", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeAll([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.disableStore({from: owner});
+            await airDropper.enableTransfer({from: owner});
+            await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
         });
     });
 
     describe("positive assertion:", function() {
-        it("function sendEos should complete successfully", async function() {
-            await airDropper.set(sender, {from: owner});
-            await airDropper.saveAll([bancorX.address], [TEST_AMOUNT], {from: sender});
-            await airDropper.disableSave({from: owner});
-            await airDropper.enableSend({from: owner});
-            assert.equal((await airDropper.sendBalances(bancorX.address)).toString(), 0);
-            await airDropper.sendEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: sender});
-            assert.equal((await airDropper.sendBalances(bancorX.address)).toString(), TEST_AMOUNT);
+        it("function transferEos should complete successfully", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeAll([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.disableStore({from: owner});
+            await airDropper.enableTransfer({from: owner});
+            assert.equal((await airDropper.transferredBalances(bancorX.address)).toString(), 0);
+            await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor});
+            assert.equal((await airDropper.transferredBalances(bancorX.address)).toString(), TEST_AMOUNT);
             for (const reporter of reporters) {
                 assert.equal((await relayToken.balanceOf(receiver)).toString(), 0);
                 await bancorX.reportTx("eos", TRANSACTION_ID, receiver, TEST_AMOUNT, 0, {from: reporter});

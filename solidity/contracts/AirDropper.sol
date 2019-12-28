@@ -5,68 +5,68 @@ import 'bancor-contracts/solidity/contracts/token/interfaces/IERC20Token.sol';
 
 contract AirDropper is TokenHolder {
     enum State {
-        saveEnabled,
+        storeEnabled,
         noneEnabled,
-        sendEnabled
+        transferEnabled
     }
 
     State public state;
     bytes32 public hash;
-    address public sender;
+    address public executor;
 
-    mapping (address => uint256) public saveBalances;
-    mapping (address => uint256) public sendBalances;
+    mapping (address => uint256) public storedBalances;
+    mapping (address => uint256) public transferredBalances;
 
     constructor() TokenHolder() public {
-        state = State.saveEnabled;
+        state = State.storeEnabled;
     }
 
-    function set(address _sender) external ownerOnly {
-        sender = _sender;
+    function set(address _executor) external ownerOnly {
+        executor = _executor;
     }
 
-    function disableSave() external ownerOnly {
-        require(state == State.saveEnabled);
+    function disableStore() external ownerOnly {
+        require(state == State.storeEnabled);
         state = State.noneEnabled;
     }
 
-    function enableSend() external ownerOnly {
+    function enableTransfer() external ownerOnly {
         require(state == State.noneEnabled);
-        state = State.sendEnabled;
+        state = State.transferEnabled;
     }
 
-    function saveAll(address[] _targets, uint256[] _amounts) external {
-        require(msg.sender == sender && state == State.saveEnabled);
+    function storeAll(address[] _targets, uint256[] _amounts) external {
+        require(msg.sender == executor && state == State.storeEnabled);
         uint256 length = _targets.length;
         require(length == _amounts.length);
         for (uint256 i = 0; i < length; i++) {
             address target = _targets[i];
             uint256 amount = _amounts[i];
-            require(saveBalances[target] == 0);
-            saveBalances[target] = amount;
+            require(storedBalances[target] == 0);
+            storedBalances[target] = amount;
             hash ^= keccak256(abi.encodePacked(_targets[i], _amounts[i]));
         }
     }
 
-    function sendEth(IERC20Token _token, address[] _targets, uint256[] _amounts) external {
-        require(msg.sender == sender && state == State.sendEnabled);
+    function transferEth(IERC20Token _token, address[] _targets, uint256[] _amounts) external {
+        require(msg.sender == executor && state == State.transferEnabled);
         uint256 length = _targets.length;
         require(length == _amounts.length);
         for (uint256 i = 0; i < length; i++) {
             address target = _targets[i];
             uint256 amount = _amounts[i];
-            require(saveBalances[target] == amount);
-            require(sendBalances[target] == 0);
+            require(storedBalances[target] == amount);
+            require(transferredBalances[target] == 0);
             require(_token.transfer(target, amount));
-            sendBalances[target] = amount;
+            transferredBalances[target] = amount;
         }
     }
 
-    function sendEos(IBancorX _bancorX, bytes32 _target, uint256 _amount) external {
-        require(msg.sender == sender && state == State.sendEnabled);
-        require(saveBalances[_bancorX] == _amount);
-        require(sendBalances[_bancorX] == 0);
+    function transferEos(IBancorX _bancorX, bytes32 _target, uint256 _amount) external {
+        require(msg.sender == executor && state == State.transferEnabled);
+        require(storedBalances[_bancorX] == _amount);
+        require(transferredBalances[_bancorX] == 0);
         _bancorX.xTransfer("eos", _target, _amount, 0);
-        sendBalances[_bancorX] = _amount;
+        transferredBalances[_bancorX] = _amount;
     }
 }
