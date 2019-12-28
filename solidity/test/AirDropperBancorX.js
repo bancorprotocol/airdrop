@@ -63,6 +63,14 @@ contract("AirDropperBancorX", function(accounts) {
             await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
         });
 
+        it("function transferEos should abort with an error if called with an incorrcet value", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.disableStore({from: owner});
+            await airDropper.enableTransfer({from: owner});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT.plus(1), {from: executor}));
+        });
+
         it("function transferEos should abort with an error if called twice", async function() {
             await airDropper.set(executor, {from: owner});
             await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});

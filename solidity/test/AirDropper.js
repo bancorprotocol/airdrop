@@ -81,7 +81,7 @@ contract("AirDropper", function(accounts) {
             await catchRevert(airDropper.storeBatch(users.slice(1), values, {from: executor}));
         });
 
-        it("function storeBatch should abort with an error if called twice for the same target", async function() {
+        it("function storeBatch should abort with an error if called twice for the same user", async function() {
             await airDropper.set(executor, {from: owner});
             await airDropper.storeBatch(users, values, {from: executor});
             await catchRevert(airDropper.storeBatch([users[0]], [values[0]], {from: executor}));
@@ -124,7 +124,15 @@ contract("AirDropper", function(accounts) {
             await catchRevert(airDropper.transferEth(relayToken.address, users.slice(1), values, {from: executor}));
         });
 
-        it("function transferEth should abort with an error if called twice for the same target", async function() {
+        it("function transferEth should abort with an error if called with an incorrcet value", async function() {
+            await airDropper.set(executor, {from: owner});
+            await airDropper.storeBatch(users, values, {from: executor});
+            await airDropper.disableStore({from: owner});
+            await airDropper.enableTransfer({from: owner});
+            await catchRevert(airDropper.transferEth(relayToken.address, [users[0]], [values[0] + 1], {from: executor}));
+        });
+
+        it("function transferEth should abort with an error if called twice for the same user", async function() {
             await airDropper.set(executor, {from: owner});
             await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
