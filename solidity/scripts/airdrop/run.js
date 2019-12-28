@@ -217,7 +217,7 @@ async function run() {
             }
         };
 
-        await executePhase(airDropper.methods.set(account.address));
+        await executePhase(airDropper.methods.setExecutor(account.address));
         await executePhase(relayToken.methods.issue(airDropper._address, total));
         await executePhase(relayToken.methods.transferOwnership(converter._address));
         await executePhase(converter .methods.acceptTokenOwnership());
