@@ -131,11 +131,10 @@ async function printStatus(relayToken, airDropper) {
     console.log(`${balance} out of ${supply} tokens remaining`);
 }
 
-async function updateState(airDropper, updateFunc, crc) {
-    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), crc, "CRC failure");
-    while (await rpc(airDropper.methods.state()) == "0") await updateFunc("disableStore"); 
-    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), crc, "CRC failure");
-    while (await rpc(airDropper.methods.state()) == "1") await updateFunc("enableTransfer"); 
+async function updateState(airDropper, updateFunc, expectedCRC, currentState, methodName) {
+    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), expectedCRC);
+    while (await rpc(airDropper.methods.state()) == currentState)
+        await updateFunc(methodName);
 }
 
 async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
@@ -242,7 +241,8 @@ async function run() {
 
     await storeBatch();
     await printStatus(relayToken, airDropper);
-    await updateState(airDropper, updateFunc, crc);
+    await updateState(airDropper, updateFunc, crc, "0", "disableStore");
+    await updateState(airDropper, updateFunc, crc, "1", "enableTransfer");
     await transferEos();
     await printStatus(relayToken, airDropper);
     await transferEth();
