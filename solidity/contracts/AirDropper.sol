@@ -11,8 +11,8 @@ contract AirDropper is TokenHolder {
     }
 
     State public state;
-    bytes32 public hash;
     address public executor;
+    bytes32 public storedBalancesCRC;
 
     mapping (address => uint256) public storedBalances;
     mapping (address => uint256) public transferredBalances;
@@ -35,7 +35,7 @@ contract AirDropper is TokenHolder {
         state = State.transferEnabled;
     }
 
-    function storeAll(address[] _targets, uint256[] _amounts) external {
+    function storeBatch(address[] _targets, uint256[] _amounts) external {
         require(msg.sender == executor && state == State.storeEnabled);
         uint256 length = _targets.length;
         require(length == _amounts.length);
@@ -44,7 +44,7 @@ contract AirDropper is TokenHolder {
             uint256 amount = _amounts[i];
             require(storedBalances[target] == 0);
             storedBalances[target] = amount;
-            hash ^= keccak256(abi.encodePacked(_targets[i], _amounts[i]));
+            storedBalancesCRC ^= keccak256(abi.encodePacked(_targets[i], _amounts[i]));
         }
     }
 

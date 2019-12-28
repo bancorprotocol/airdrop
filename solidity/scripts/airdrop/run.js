@@ -132,9 +132,9 @@ async function printStatus(relayToken, airDropper) {
 }
 
 async function updateState(airDropper, updateFunc, hash) {
-    assert.equal(await rpc(airDropper.methods.hash()), hash, "verification failure");
+    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), hash, "CRC failure");
     while (await rpc(airDropper.methods.state()) == "0") await updateFunc("disableStore"); 
-    assert.equal(await rpc(airDropper.methods.hash()), hash, "verification failure");
+    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), hash, "CRC failure");
     while (await rpc(airDropper.methods.state()) == "1") await updateFunc("enableTransfer"); 
 }
 
@@ -235,12 +235,12 @@ async function run() {
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
     const hash = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
-    const updateFunc = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
-    const storeAll    = () => execute(web3, web3Func, "storeAll"   , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeAll   (targets, amounts), lines);
+    const updateFunc  = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
+    const storeBatch  = () => execute(web3, web3Func, "storeBatch" , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
     const transferEos = () => execute(web3, web3Func, "transferEos", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
     const transferEth = () => execute(web3, web3Func, "transferEth", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
 
-    await storeAll();
+    await storeBatch();
     await printStatus(relayToken, airDropper);
     await updateState(airDropper, updateFunc, hash);
     await transferEos();

@@ -53,43 +53,43 @@ contract("AirDropper", function(accounts) {
             await catchRevert(airDropper.enableTransfer({from: owner}));
         });
 
-        it("function storeAll should abort with an error if called by a non-executor", async function() {
+        it("function storeBatch should abort with an error if called by a non-executor", async function() {
             await airDropper.set(executor, {from: owner});
-            await catchRevert(airDropper.storeAll(users, values, {from: stranger}));
+            await catchRevert(airDropper.storeBatch(users, values, {from: stranger}));
         });
 
-        it("function storeAll should abort with an error if called after disableStore", async function() {
+        it("function storeBatch should abort with an error if called after disableStore", async function() {
             await airDropper.set(executor, {from: owner});
             await airDropper.disableStore({from: owner});
-            await catchRevert(airDropper.storeAll(users, values, {from: executor}));
+            await catchRevert(airDropper.storeBatch(users, values, {from: executor}));
         });
 
-        it("function storeAll should abort with an error if called after enableTransfer", async function() {
+        it("function storeBatch should abort with an error if called after enableTransfer", async function() {
             await airDropper.set(executor, {from: owner});
             await airDropper.disableStore({from: owner});
             await airDropper.enableTransfer({from: owner});
-            await catchRevert(airDropper.storeAll(users, values, {from: executor}));
+            await catchRevert(airDropper.storeBatch(users, values, {from: executor}));
         });
 
-        it("function storeAll should abort with an error if there are more users than values", async function() {
+        it("function storeBatch should abort with an error if there are more users than values", async function() {
             await airDropper.set(executor, {from: owner});
-            await catchRevert(airDropper.storeAll(users, values.slice(1), {from: executor}));
+            await catchRevert(airDropper.storeBatch(users, values.slice(1), {from: executor}));
         });
 
-        it("function storeAll should abort with an error if there are less users than values", async function() {
+        it("function storeBatch should abort with an error if there are less users than values", async function() {
             await airDropper.set(executor, {from: owner});
-            await catchRevert(airDropper.storeAll(users.slice(1), values, {from: executor}));
+            await catchRevert(airDropper.storeBatch(users.slice(1), values, {from: executor}));
         });
 
-        it("function storeAll should abort with an error if called twice for the same target", async function() {
+        it("function storeBatch should abort with an error if called twice for the same target", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
-            await catchRevert(airDropper.storeAll([users[0]], [values[0]], {from: executor}));
+            await airDropper.storeBatch(users, values, {from: executor});
+            await catchRevert(airDropper.storeBatch([users[0]], [values[0]], {from: executor}));
         });
 
         it("function transferEth should abort with an error if called by a non-executor", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             await airDropper.enableTransfer({from: owner});
             await catchRevert(airDropper.transferEth(relayToken.address, users, values, {from: stranger}));
@@ -97,20 +97,20 @@ contract("AirDropper", function(accounts) {
 
         it("function transferEth should abort with an error if called before disableStore", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await catchRevert(airDropper.transferEth(relayToken.address, users, values, {from: executor}));
         });
 
         it("function transferEth should abort with an error if called before enableTransfer", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             await catchRevert(airDropper.transferEth(relayToken.address, users, values, {from: executor}));
         });
 
         it("function transferEth should abort with an error if there are more users than values", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             await airDropper.enableTransfer({from: owner});
             await catchRevert(airDropper.transferEth(relayToken.address, users, values.slice(1), {from: executor}));
@@ -118,7 +118,7 @@ contract("AirDropper", function(accounts) {
 
         it("function transferEth should abort with an error if there are less users than values", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             await airDropper.enableTransfer({from: owner});
             await catchRevert(airDropper.transferEth(relayToken.address, users.slice(1), values, {from: executor}));
@@ -126,7 +126,7 @@ contract("AirDropper", function(accounts) {
 
         it("function transferEth should abort with an error if called twice for the same target", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             await airDropper.enableTransfer({from: owner});
             await airDropper.transferEth(relayToken.address, users, values, {from: executor});
@@ -141,16 +141,16 @@ contract("AirDropper", function(accounts) {
             assert.equal(await airDropper.executor(), executor);
         });
 
-        it("function storeAll should complete successfully", async function() {
+        it("function storeBatch should complete successfully", async function() {
             await airDropper.set(executor, {from: owner});
             assert.equal(await getBalances(users, airDropper.storedBalances), values.map(value => 0));
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             assert.equal(await getBalances(users, airDropper.storedBalances), values);
         });
 
         it("function disableStore should complete successfully", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             assert.equal(await airDropper.state(), 0);
             await airDropper.disableStore({from: owner});
             assert.equal(await airDropper.state(), 1);
@@ -158,7 +158,7 @@ contract("AirDropper", function(accounts) {
 
         it("function enableTransfer should complete successfully", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             assert.equal(await airDropper.state(), 1);
             await airDropper.enableTransfer({from: owner});
@@ -167,7 +167,7 @@ contract("AirDropper", function(accounts) {
 
         it("function transferEth should complete successfully", async function() {
             await airDropper.set(executor, {from: owner});
-            await airDropper.storeAll(users, values, {from: executor});
+            await airDropper.storeBatch(users, values, {from: executor});
             await airDropper.disableStore({from: owner});
             await airDropper.enableTransfer({from: owner});
             assert.equal(await getBalances(users, airDropper.transferredBalances), values.map(value => 0));
