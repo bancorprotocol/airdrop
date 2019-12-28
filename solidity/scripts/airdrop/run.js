@@ -7,7 +7,7 @@ const SRC_FILE_NAME = process.argv[2];
 const CFG_FILE_NAME = process.argv[3];
 const NODE_ADDRESS  = process.argv[4];
 const PRIVATE_KEY   = process.argv[5];
-const CHUNK_SIZE    = process.argv[6];
+const BATCH_SIZE    = process.argv[6];
 const TEST_MODE     = process.argv[7];
 
 const ARTIFACTS_DIR = __dirname + "/../../build/";
@@ -131,10 +131,10 @@ async function printStatus(relayToken, airDropper) {
     console.log(`${balance} out of ${supply} tokens remaining`);
 }
 
-async function updateState(airDropper, updateFunc, hash) {
-    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), hash, "CRC failure");
+async function updateState(airDropper, updateFunc, crc) {
+    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), crc, "CRC failure");
     while (await rpc(airDropper.methods.state()) == "0") await updateFunc("disableStore"); 
-    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), hash, "CRC failure");
+    assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), crc, "CRC failure");
     while (await rpc(airDropper.methods.state()) == "1") await updateFunc("enableTransfer"); 
 }
 
@@ -143,16 +143,16 @@ async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
     const amounts = lines.map(line => line.split(" ")[1]);
 
     if (get()[keyName] == undefined)
-        set({[keyName]: Array(Math.ceil(lines.length / CHUNK_SIZE)).fill({})});
+        set({[keyName]: Array(Math.ceil(lines.length / BATCH_SIZE)).fill({})});
 
     const transactions = get()[keyName];
     while (transactions.some(x => !x.done)) {
         for (let i = 0; i < transactions.length; i++) {
             if (!transactions[i].blockNumber) {
-                const bgn = i * CHUNK_SIZE;
+                const bgn = i * BATCH_SIZE;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
-                    const end = (i + 1) * CHUNK_SIZE;
+                    const end = (i + 1) * BATCH_SIZE;
                     const receipt = await web3Func(send, setBalance(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
                     transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
                     console.log(`${keyName} ${i} submitted: ${JSON.stringify(transactions[i])}`);
@@ -165,10 +165,10 @@ async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
                 }
             }
             else if (!transactions[i].done) {
-                const bgn = i * CHUNK_SIZE;
+                const bgn = i * BATCH_SIZE;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
-                    const end = (i + 1) * CHUNK_SIZE;
+                    const end = (i + 1) * BATCH_SIZE;
                     const receipt = await web3Func(send, setBalance(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
                     transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
                     console.log(`${keyName} ${i} resubmitted: ${JSON.stringify(transactions[i])}`);
@@ -233,7 +233,7 @@ async function run() {
 
     lines.unshift(lines.splice(lines.findIndex(line => line.split(" ")[0] == bancorX._address), 1)[0]);
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
-    const hash = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
+    const crc = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
     const updateFunc  = (methodName) => TEST_MODE ? web3Func(send, airDropper.methods[methodName]()) : scan(`Press enter after executing ${methodName}...`);
     const storeBatch  = () => execute(web3, web3Func, "storeBatch" , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
@@ -242,7 +242,7 @@ async function run() {
 
     await storeBatch();
     await printStatus(relayToken, airDropper);
-    await updateState(airDropper, updateFunc, hash);
+    await updateState(airDropper, updateFunc, crc);
     await transferEos();
     await printStatus(relayToken, airDropper);
     await transferEth();
