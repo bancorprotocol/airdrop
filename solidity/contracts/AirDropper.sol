@@ -10,8 +10,8 @@ contract AirDropper is TokenHolder {
         transferEnabled
     }
 
+    address public agent;
     State public state;
-    address public executor;
     bytes32 public storedBalancesCRC;
 
     mapping (address => uint256) public storedBalances;
@@ -21,17 +21,17 @@ contract AirDropper is TokenHolder {
         state = State.storeEnabled;
     }
 
+    function setAgent(address _executor) external ownerOnly {
+        agent = _executor;
+    }
+
     function setState(State _state) external ownerOnly {
         state = _state;
     }
 
-    function setExecutor(address _executor) external ownerOnly {
-        executor = _executor;
-    }
-
     function storeBatch(address[] _targets, uint256[] _amounts) external {
         bytes32 crc;
-        require(msg.sender == executor && state == State.storeEnabled);
+        require(msg.sender == agent && state == State.storeEnabled);
         uint256 length = _targets.length;
         require(length == _amounts.length);
         for (uint256 i = 0; i < length; i++) {
@@ -45,7 +45,7 @@ contract AirDropper is TokenHolder {
     }
 
     function transferEth(IERC20Token _token, address[] _targets, uint256[] _amounts) external {
-        require(msg.sender == executor && state == State.transferEnabled);
+        require(msg.sender == agent && state == State.transferEnabled);
         uint256 length = _targets.length;
         require(length == _amounts.length);
         for (uint256 i = 0; i < length; i++) {
@@ -59,7 +59,7 @@ contract AirDropper is TokenHolder {
     }
 
     function transferEos(IBancorX _bancorX, bytes32 _target, uint256 _amount) external {
-        require(msg.sender == executor && state == State.transferEnabled);
+        require(msg.sender == agent && state == State.transferEnabled);
         require(storedBalances[_bancorX] == _amount);
         require(transferredBalances[_bancorX] == 0);
         _bancorX.xTransfer("eos", _target, _amount, 0);

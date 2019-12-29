@@ -125,15 +125,15 @@ async function rpc(func) {
     }
 }
 
-async function setExecutor(airDropper, initFunc, executor) {
-    while (await rpc(airDropper.methods.executor()) != executor)
-        await initFunc(executor);
+async function updateAgent(airDropper, setAgent, newAgent) {
+    while (await rpc(airDropper.methods.agent()) != newAgent)
+        await setAgent(newAgent);
 }
 
-async function updateState(airDropper, updateFunc, expectedCRC, state) {
+async function updateState(airDropper, expectedCRC, setState, newState) {
     assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), expectedCRC);
-    while (await rpc(airDropper.methods.state()) < state)
-        await updateFunc(state);
+    while (await rpc(airDropper.methods.state()) < newState)
+        await setState(newState);
 }
 
 async function printStatus(relayToken, airDropper) {
@@ -236,19 +236,19 @@ async function run() {
 
     lines.unshift(lines.splice(lines.findIndex(line => line.split(" ")[0] == bancorX._address), 1)[0]);
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
-    const crc = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
+    const expectedCRC = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
-    const initFunc    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setExecutor(input)) : (input) => scan(`Press enter after executing function 'setExecutor(${input})'...`);
-    const updateFunc  = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState   (input)) : (input) => scan(`Press enter after executing function 'setState(${input})'...`);
+    const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing function 'setAgent(${input})'...`);
+    const setState    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState(input)) : (input) => scan(`Press enter after executing function 'setState(${input})'...`);
     const storeBatch  = () => execute(web3, web3Func, "storeBatch" , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
     const transferEos = () => execute(web3, web3Func, "transferEos", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
     const transferEth = () => execute(web3, web3Func, "transferEth", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
 
-    await setExecutor(airDropper, initFunc, account.address);
+    await updateAgent(airDropper, setAgent, account.address);
     await storeBatch();
     await printStatus(relayToken, airDropper);
-    await updateState(airDropper, updateFunc, crc, 1);
-    await updateState(airDropper, updateFunc, crc, 2);
+    await updateState(airDropper, expectedCRC, setState, 1);
+    await updateState(airDropper, expectedCRC, setState, 2);
     await transferEos();
     await printStatus(relayToken, airDropper);
     await transferEth();

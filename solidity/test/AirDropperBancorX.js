@@ -7,7 +7,7 @@ contract("AirDropperBancorX", function(accounts) {
     let bancorX;
 
     const owner     = accounts[1];
-    const executor  = accounts[2];
+    const agent     = accounts[2];
     const stranger  = accounts[3];
     const receiver  = accounts[4];
     const reporters = accounts.slice(5);
@@ -42,55 +42,55 @@ contract("AirDropperBancorX", function(accounts) {
     });
 
     describe("negative assertion:", function() {
-        it("function transferEos should abort with an error if called by a non-executor", async function() {
-            await airDropper.setExecutor(executor, {from: owner});
+        it("function transferEos should abort with an error if called by a non-agent", async function() {
+            await airDropper.setAgent(agent, {from: owner});
             await airDropper.setState(0, {from: owner});
-            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: agent});
             await airDropper.setState(2, {from: owner});
             await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: stranger}));
         });
 
         it("function transferEos should abort with an error if called under storeEnabled", async function() {
-            await airDropper.setExecutor(executor, {from: owner});
+            await airDropper.setAgent(agent, {from: owner});
             await airDropper.setState(0, {from: owner});
-            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
-            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: agent});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: agent}));
         });
 
         it("function transferEos should abort with an error if called under storeDisabled", async function() {
-            await airDropper.setExecutor(executor, {from: owner});
+            await airDropper.setAgent(agent, {from: owner});
             await airDropper.setState(0, {from: owner});
-            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: agent});
             await airDropper.setState(1, {from: owner});
-            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: agent}));
         });
 
         it("function transferEos should abort with an error if called with an incorrcet value", async function() {
-            await airDropper.setExecutor(executor, {from: owner});
+            await airDropper.setAgent(agent, {from: owner});
             await airDropper.setState(0, {from: owner});
-            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: agent});
             await airDropper.setState(2, {from: owner});
-            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT.plus(1), {from: executor}));
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT.plus(1), {from: agent}));
         });
 
         it("function transferEos should abort with an error if called twice", async function() {
-            await airDropper.setExecutor(executor, {from: owner});
+            await airDropper.setAgent(agent, {from: owner});
             await airDropper.setState(0, {from: owner});
-            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: agent});
             await airDropper.setState(2, {from: owner});
-            await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor});
-            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor}));
+            await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: agent});
+            await catchRevert(airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: agent}));
         });
     });
 
     describe("positive assertion:", function() {
         it("function transferEos should complete successfully", async function() {
-            await airDropper.setExecutor(executor, {from: owner});
+            await airDropper.setAgent(agent, {from: owner});
             await airDropper.setState(0, {from: owner});
-            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: executor});
+            await airDropper.storeBatch([bancorX.address], [TEST_AMOUNT], {from: agent});
             await airDropper.setState(2, {from: owner});
             assert.equal((await airDropper.transferredBalances(bancorX.address)).toString(), 0);
-            await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor});
+            await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: agent});
             assert.equal((await airDropper.transferredBalances(bancorX.address)).toString(), TEST_AMOUNT);
             assert.equal((await relayToken.balanceOf(bancorX.address)).toString(), TEST_AMOUNT);
             for (const reporter of reporters) {
