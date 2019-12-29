@@ -238,8 +238,8 @@ async function run() {
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
     const expectedCRC = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
-    const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing function 'setAgent(${input})'...`);
-    const setState    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState(input)) : (input) => scan(`Press enter after executing function 'setState(${input})'...`);
+    const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing transaction 'setAgent(${input})'...`);
+    const setState    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState(input)) : (input) => scan(`Press enter after executing transaction 'setState(${input})'...`);
     const storeBatch  = () => execute(web3, web3Func, "storeBatch" , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
     const transferEos = () => execute(web3, web3Func, "transferEos", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
     const transferEth = () => execute(web3, web3Func, "transferEth", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
