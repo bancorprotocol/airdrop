@@ -125,12 +125,6 @@ async function rpc(func) {
     }
 }
 
-async function printStatus(relayToken, airDropper) {
-    const balance = await rpc(relayToken.methods.balanceOf(airDropper._address));
-    const supply  = await rpc(relayToken.methods.totalSupply());
-    console.log(`${balance} out of ${supply} tokens remaining`);
-}
-
 async function setExecutor(airDropper, initFunc, newExecutor) {
     while (await rpc(airDropper.methods.executor()) != newExecutor)
         await initFunc(newExecutor);
@@ -140,6 +134,12 @@ async function updateState(airDropper, updateFunc, expectedCRC, currentState, me
     assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), expectedCRC);
     while (await rpc(airDropper.methods.state()) == currentState)
         await updateFunc(methodName);
+}
+
+async function printStatus(relayToken, airDropper) {
+    const balance = await rpc(relayToken.methods.balanceOf(airDropper._address));
+    const supply  = await rpc(relayToken.methods.totalSupply());
+    console.log(`${balance} out of ${supply} tokens remaining`);
 }
 
 async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
