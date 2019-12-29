@@ -23,7 +23,7 @@ function map(data) {
     return data
     .split(os.EOL).slice(0, -1)
     .map(line => line.split(" "))
-    .reduce((a, b) => Object.assign(a, {[b[0]]: b[1]}), {});
+    .reduce((a, b) => ({...a, [b[0]]: b[1]}), {});
 }
 
 function sum(data) {
