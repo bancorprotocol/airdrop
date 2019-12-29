@@ -27,8 +27,8 @@ contract FixedSupplyUpgrader is TokenHolder {
     {
         IERC20Token bntToken = _oldConverter.token();
         IERC20Token ethToken = _oldConverter.reserveTokens(0);
-        ISmartToken relayToken = ISmartToken(_newConverter.token());
-        relayToken.acceptOwnership();
+        ISmartToken smartToken = ISmartToken(_newConverter.token());
+        smartToken.acceptOwnership();
         _oldConverter.acceptOwnership();
         _newConverter.acceptOwnership();
         _oldConverter.disableConversions(true);
@@ -36,9 +36,9 @@ contract FixedSupplyUpgrader is TokenHolder {
         uint256 ethAmount = _oldConverter.getReserveBalance(ethToken);
         _oldConverter.withdrawTokens(ethToken, _newConverter, ethAmount);
         require(bntToken.transferFrom(_bntWallet, _newConverter, bntAmount));
-        relayToken.issue(_bntWallet, bntAmount);
-        relayToken.issue(_communityWallet, bntAmount);
-        relayToken.transferOwnership(_newConverter);
+        smartToken.issue(_bntWallet, bntAmount);
+        smartToken.issue(_communityWallet, bntAmount);
+        smartToken.transferOwnership(_newConverter);
         _newConverter.acceptTokenOwnership();
         _newConverter.transferOwnership(owner);
         _oldConverter.transferOwnership(owner);
