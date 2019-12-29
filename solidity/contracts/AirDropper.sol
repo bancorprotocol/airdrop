@@ -6,7 +6,7 @@ import 'bancor-contracts/solidity/contracts/token/interfaces/IERC20Token.sol';
 contract AirDropper is TokenHolder {
     enum State {
         storeEnabled,
-        noneEnabled,
+        storeDisabled,
         transferEnabled
     }
 
@@ -21,17 +21,21 @@ contract AirDropper is TokenHolder {
         state = State.storeEnabled;
     }
 
+    function setState(State _state) external ownerOnly {
+        state = _state;
+    }
+
     function setExecutor(address _executor) external ownerOnly {
         executor = _executor;
     }
 
     function disableStore() external ownerOnly {
         require(state == State.storeEnabled);
-        state = State.noneEnabled;
+        state = State.storeDisabled;
     }
 
     function enableTransfer() external ownerOnly {
-        require(state == State.noneEnabled);
+        require(state == State.storeDisabled);
         state = State.transferEnabled;
     }
 
