@@ -18,6 +18,13 @@ function rearrange(data) {
     .join(os.EOL) + os.EOL;
 }
 
-fs.writeFileSync(DST_FILE_NAME, rearrange(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})), {encoding: "utf8"});
+function sum(data) {
+    return data
+    .split(os.EOL).slice(0, -1)
+    .map(line => line.split(" "))
+    .reduce((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
+}
 
-console.log(SRC_FILE_NAME + " --> " + DST_FILE_NAME);
+fs.writeFileSync(DST_FILE_NAME, rearrange(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})), {encoding: "utf8"});
+console.log("Source total supply = " + sum(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})));
+console.log("Target total supply = " + sum(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"})));
