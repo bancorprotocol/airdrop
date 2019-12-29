@@ -29,16 +29,6 @@ contract AirDropper is TokenHolder {
         executor = _executor;
     }
 
-    function disableStore() external ownerOnly {
-        require(state == State.storeEnabled);
-        state = State.storeDisabled;
-    }
-
-    function enableTransfer() external ownerOnly {
-        require(state == State.storeDisabled);
-        state = State.transferEnabled;
-    }
-
     function storeBatch(address[] _targets, uint256[] _amounts) external {
         bytes32 crc;
         require(msg.sender == executor && state == State.storeEnabled);
