@@ -241,8 +241,8 @@ async function run() {
 
     await storeBatch();
     await printStatus(relayToken, airDropper);
-    await updateState(airDropper, updateFunc, crc, "0", "disableStore");
-    await updateState(airDropper, updateFunc, crc, "1", "enableTransfer");
+    await updateState(airDropper, updateFunc, crc, 0, "disableStore");
+    await updateState(airDropper, updateFunc, crc, 1, "enableTransfer");
     await transferEos();
     await printStatus(relayToken, airDropper);
     await transferEth();
