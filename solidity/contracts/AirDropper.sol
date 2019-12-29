@@ -21,8 +21,8 @@ contract AirDropper is TokenHolder {
         state = State.storeEnabled;
     }
 
-    function setAgent(address _executor) external ownerOnly {
-        agent = _executor;
+    function setAgent(address _agent) external ownerOnly {
+        agent = _agent;
     }
 
     function setState(State _state) external ownerOnly {
