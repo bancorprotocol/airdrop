@@ -90,11 +90,13 @@ contract("AirDropperBancorX", function(accounts) {
             assert.equal((await airDropper.transferredBalances(bancorX.address)).toString(), 0);
             await airDropper.transferEos(bancorX.address, DESTINATION_ADDRESS, TEST_AMOUNT, {from: executor});
             assert.equal((await airDropper.transferredBalances(bancorX.address)).toString(), TEST_AMOUNT);
+            assert.equal((await relayToken.balanceOf(bancorX.address)).toString(), TEST_AMOUNT);
             for (const reporter of reporters) {
                 assert.equal((await relayToken.balanceOf(receiver)).toString(), 0);
                 await bancorX.reportTx("eos", TRANSACTION_ID, receiver, TEST_AMOUNT, 0, {from: reporter});
             }
             assert.equal((await relayToken.balanceOf(receiver)).toString(), TEST_AMOUNT);
+            assert.equal((await relayToken.balanceOf(bancorX.address)).toString(), 0);
         });
     });
 });
