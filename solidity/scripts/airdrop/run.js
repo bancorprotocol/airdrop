@@ -131,6 +131,11 @@ async function printStatus(relayToken, airDropper) {
     console.log(`${balance} out of ${supply} tokens remaining`);
 }
 
+async function setExecutor(airDropper, initFunc, newExecutor) {
+    while (await rpc(airDropper.methods.executor()) != newExecutor)
+        await initFunc(newExecutor);
+}
+
 async function updateState(airDropper, updateFunc, expectedCRC, currentState, methodName) {
     assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), expectedCRC);
     while (await rpc(airDropper.methods.state()) == currentState)
@@ -217,7 +222,6 @@ async function run() {
             }
         };
 
-        await executePhase(airDropper.methods.setExecutor(account.address));
         await executePhase(relayToken.methods.issue(airDropper._address, total));
         await executePhase(relayToken.methods.transferOwnership(converter._address));
         await executePhase(converter .methods.acceptTokenOwnership());
@@ -234,11 +238,13 @@ async function run() {
     lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
     const crc = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
-    const updateFunc  = TEST_MODE ? (methodName) => web3Func(send, airDropper.methods[methodName]()) : (methodName) => scan(`Press enter after executing function '${methodName}'...`);
+    const initFunc    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setExecutor(input)) : (input) => scan(`Press enter after executing function 'setExecutor(${input})'...`);
+    const updateFunc  = TEST_MODE ? (methodName) => web3Func(send, airDropper.methods[methodName]()) : (methodName) => scan(`Press enter after executing function '${methodName}()'...`);
     const storeBatch  = () => execute(web3, web3Func, "storeBatch" , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
     const transferEos = () => execute(web3, web3Func, "transferEos", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
     const transferEth = () => execute(web3, web3Func, "transferEth", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
 
+    await setExecutor(airDropper, initFunc, account.address);
     await storeBatch();
     await printStatus(relayToken, airDropper);
     await updateState(airDropper, updateFunc, crc, 0, "disableStore");
