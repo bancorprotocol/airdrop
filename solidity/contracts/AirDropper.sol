@@ -30,7 +30,7 @@ contract AirDropper is TokenHolder {
     }
 
     function storeBatch(address[] _targets, uint256[] _amounts) external {
-        bytes32 crc;
+        bytes32 crc = 0;
         require(msg.sender == agent && state == State.storeEnabled);
         uint256 length = _targets.length;
         require(length == _amounts.length);
