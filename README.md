@@ -31,8 +31,9 @@ node ./solidity/scripts/airdrop/run.js
     Input file name (e.g. airdrop.txt)
     Configuration file name
     Ethereum node address
-    Account private key
-    Number of accounts per chunk
+    Executing agent's private key
+    Number of accounts per batch
+    Test mode (any non-empty string)
 ```
 
 **Upgrade Execution:**
@@ -40,9 +41,8 @@ node ./solidity/scripts/airdrop/run.js
 node ./solidity/scripts/upgrade/run.js
     Configuration file name
     Ethereum node address
-    Account private key
-    BNT amount
-    BNT buffer
+    Deployer's private key
+    BNT wallet private key
 ```
 
 ## Testing Mode:
@@ -63,19 +63,13 @@ In this mode you can execute each process separately and independently of the ot
 **Airdrop Configuration File Example:**
 ```json
 {
-    "relayTokenParams": [
-        "BNT/ETH Token",
-        "BET",
-        18
-    ]
 }
 ```
 
 ## Operational Mode:
 
-In this mode you should execute the `snapshot` process first, the `upgrade` process second and the `airdrop` process third, because:
-- The input for the `upgrade` process partially derives from the output of the `snapshot` process
-- The input for the `airdrop` process partially derives from the output of the `snapshot` process and the output of the `upgrade` process
+In this mode you should execute the `upgrade` process and the `snapshot` process before you execute the `airdrop` process, because:
+The input for the `airdrop` process partially derives from the output of the `upgrade` process and the output of the `snapshot` process
 
 **Upgrade Configuration File Example:**
 ```json
@@ -94,12 +88,14 @@ In this mode you should execute the `snapshot` process first, the `upgrade` proc
 **Airdrop Configuration File Example:**
 ```json
 {
-    "relayToken": {
-        "addr": "0x..."
-    },
     "airDropper": {
         "addr": "0x..."
     },
-    "tokensIssued": true
+    "relayToken": {
+        "addr": "0x..."
+    },
+    "bancorX": {
+        "addr": "0x..."
+    }
 }
 ```
