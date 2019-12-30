@@ -53,7 +53,8 @@ node ./solidity/scripts/airdrop/run.js
     Configuration file name
     Ethereum node address
     Executing agent's private key
-    Number of accounts per batch
+    Number of store operations per batch
+    Number of transfer operations per batch
     Test mode (any non-empty string)
 ```
 

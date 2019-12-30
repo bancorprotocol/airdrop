@@ -7,8 +7,9 @@ const SRC_FILE_NAME = process.argv[2];
 const CFG_FILE_NAME = process.argv[3];
 const NODE_ADDRESS  = process.argv[4];
 const PRIVATE_KEY   = process.argv[5];
-const BATCH_SIZE    = process.argv[6];
-const TEST_MODE     = process.argv[7];
+const S_BATCH_SIZE  = process.argv[6];
+const T_BATCH_SIZE  = process.argv[7];
+const TEST_MODE     = process.argv[8];
 
 const ARTIFACTS_DIR = __dirname + "/../../build/";
 
@@ -142,21 +143,21 @@ async function printStatus(relayToken, airDropper) {
     console.log(`${balance} out of ${supply} tokens remaining`);
 }
 
-async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
+async function execute(web3, web3Func, keyName, batchSize, getBalance, setBalance, lines) {
     const targets = lines.map(line => line.split(" ")[0]);
     const amounts = lines.map(line => line.split(" ")[1]);
 
     if (get()[keyName] == undefined)
-        set({[keyName]: Array(Math.ceil(lines.length / BATCH_SIZE)).fill({})});
+        set({[keyName]: Array(Math.ceil(lines.length / batchSize)).fill({})});
 
     const transactions = get()[keyName];
     while (transactions.some(x => !x.done)) {
         for (let i = 0; i < transactions.length; i++) {
             if (!transactions[i].blockNumber) {
-                const bgn = i * BATCH_SIZE;
+                const bgn = i * batchSize;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
-                    const end = (i + 1) * BATCH_SIZE;
+                    const end = (i + 1) * batchSize;
                     const receipt = await web3Func(send, setBalance(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
                     transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
                     console.log(`${keyName} ${i} submitted: ${JSON.stringify(transactions[i])}`);
@@ -169,10 +170,10 @@ async function execute(web3, web3Func, keyName, getBalance, setBalance, lines) {
                 }
             }
             else if (!transactions[i].done) {
-                const bgn = i * BATCH_SIZE;
+                const bgn = i * batchSize;
                 const balance = await rpc(getBalance(targets[bgn]));
                 if (balance == "0") {
-                    const end = (i + 1) * BATCH_SIZE;
+                    const end = (i + 1) * batchSize;
                     const receipt = await web3Func(send, setBalance(targets.slice(bgn, end), amounts.slice(bgn, end)), 0, false);
                     transactions[i] = {blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed};
                     console.log(`${keyName} ${i} resubmitted: ${JSON.stringify(transactions[i])}`);
@@ -240,9 +241,9 @@ async function run() {
 
     const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing transaction 'setAgent(${input})'...`);
     const setState    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState(input)) : (input) => scan(`Press enter after executing transaction 'setState(${input})'...`);
-    const storeBatch  = () => execute(web3, web3Func, "storeBatch" , airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
-    const transferEos = () => execute(web3, web3Func, "transferEos", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
-    const transferEth = () => execute(web3, web3Func, "transferEth", airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
+    const storeBatch  = () => execute(web3, web3Func, "storeBatch" , S_BATCH_SIZE, airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
+    const transferEos = () => execute(web3, web3Func, "transferEos", T_BATCH_SIZE, airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
+    const transferEth = () => execute(web3, web3Func, "transferEth", T_BATCH_SIZE, airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
 
     await updateAgent(airDropper, setAgent, account.address);
     await storeBatch();
