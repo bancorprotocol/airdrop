@@ -14,6 +14,15 @@
 - Use `npm test 1` (quick testing)
 - Use `npm test 2` (full coverage)
 
+**Upgrade Execution:**
+```bash
+node ./solidity/scripts/upgrade/run.js
+    Configuration file name
+    Ethereum node address
+    Deployer's private key
+    BNT wallet private key
+```
+
 **Snapshot Execution:**
 ```bash
 node ./solidity/scripts/snapshot/run.js
@@ -34,15 +43,6 @@ node ./solidity/scripts/airdrop/run.js
     Executing agent's private key
     Number of accounts per batch
     Test mode (any non-empty string)
-```
-
-**Upgrade Execution:**
-```bash
-node ./solidity/scripts/upgrade/run.js
-    Configuration file name
-    Ethereum node address
-    Deployer's private key
-    BNT wallet private key
 ```
 
 ## Testing Mode:
