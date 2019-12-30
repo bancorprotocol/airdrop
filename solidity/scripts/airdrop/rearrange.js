@@ -12,7 +12,7 @@ function rearrange(data) {
     return data
     .split(os.EOL).slice(0, -1)
     .map(line => line.split(" "))
-    .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0])
+    .sort((a, b) => Web3.utils.toBN(a[0]).cmp(Web3.utils.toBN(b[0])))
     .map(words => [words[0], Web3.utils.toBN(words[1]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString(), ...words.slice(2)])
     .filter(words => words[1] != "0")
     .map(words => words.join(" "))
