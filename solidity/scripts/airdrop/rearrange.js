@@ -42,15 +42,15 @@ const dstSum = sum(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"}));
 
 for (const address of Object.keys(srcMap)) {
     const amount   = Web3.utils.toBN(srcMap[address]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString();
-    const expected = `{${address}: ${amount != "0" ? amount : undefined}}`;
-    const actual   = `{${address}: ${dstMap[address]}}`;
+    const expected = JSON.stringify({[address]: amount != "0" ? amount : undefined});
+    const actual   = JSON.stringify({[address]: dstMap[address]});
     assert.equal(actual, expected);
 }
 
 for (const address of Object.keys(dstMap)) {
     const amount   = Web3.utils.toBN(srcMap[address]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString();
-    const expected = `{${address}: ${amount}}`;
-    const actual   = `{${address}: ${dstMap[address]}}`;
+    const expected = JSON.stringify({[address]: amount});
+    const actual   = JSON.stringify({[address]: dstMap[address]});
     assert.equal(actual, expected);
 }
 
