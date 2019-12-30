@@ -69,7 +69,7 @@ In this mode you can execute each process separately and independently of the ot
 ## Operational Mode:
 
 In this mode you should execute the `upgrade` process and the `snapshot` process before you execute the `airdrop` process, because:
-The input for the `airdrop` process partially derives from the output of the `upgrade` process and the output of the `snapshot` process
+The input for the `airdrop` process partially derives from the output of the `upgrade` process and the output of the `snapshot` process.
 
 **Upgrade Configuration File Example:**
 ```json
