@@ -36,8 +36,17 @@ node ./solidity/scripts/snapshot/run.js
 
 **Airdrop Execution:**
 ```bash
-node ./solidity/scripts/airdrop/run.js
+# rearrange by alphabetic order of the addresses, and rescale each amount
+node ./solidity/scripts/airdrop/rearrange.js
     Input file name (e.g. airdrop.txt)
+    Output file name (e.g. airdrop_10p.txt)
+    Scale-factor numerator (e.g. 1)
+    Scale-factor denominator (e.g. 10)
+```
+
+```bash
+node ./solidity/scripts/airdrop/run.js
+    Input file name (e.g. airdrop_10p.txt)
     Configuration file name
     Ethereum node address
     Executing agent's private key
