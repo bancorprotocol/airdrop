@@ -16,6 +16,7 @@
 
 **Upgrade Execution:**
 ```bash
+# initiate the upgrade process
 node ./solidity/scripts/upgrade/run.js
     Configuration file name
     Ethereum node address
@@ -25,6 +26,7 @@ node ./solidity/scripts/upgrade/run.js
 
 **Snapshot Execution:**
 ```bash
+# initiate the snapshot process
 node ./solidity/scripts/snapshot/run.js
     Output file name (e.g. airdrop.txt)
     Token contract address (e.g. 0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C)
@@ -45,6 +47,7 @@ node ./solidity/scripts/airdrop/rearrange.js
 ```
 
 ```bash
+# initiate the airdrop process
 node ./solidity/scripts/airdrop/run.js
     Input file name (e.g. airdrop_10p.txt)
     Configuration file name
