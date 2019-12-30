@@ -1,6 +1,6 @@
 contract("AirDropper", function(accounts) {
-    let relayToken;
     let airDropper;
+    let relayToken;
 
     const storeEnabled    = 0;
     const storeDisabled   = 1;
