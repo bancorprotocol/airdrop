@@ -38,10 +38,19 @@ node ./solidity/scripts/snapshot/run.js
 
 **Airdrop Execution:**
 ```bash
+# move the amount entitled by the airdrop contract to the foundation wallet
+node ./solidity/scripts/airdrop/repair.js
+    Input file name (e.g. airdrop.txt)
+    Output file name (e.g. airdrop_fix1.txt)
+    Airdrop contract address (e.g. 0xbE8EA1615Bcc7007F4Ac4cDa4e4E89B20d5c9499)
+    Foundation wallet address (e.g. 0x9b0D0ac3b597F77028b9Df4F90f6C228d6ba33CC)
+```
+
+```bash
 # rearrange by alphabetic order of the addresses, and rescale each amount
 node ./solidity/scripts/airdrop/rearrange.js
-    Input file name (e.g. airdrop.txt)
-    Output file name (e.g. airdrop_10p.txt)
+    Input file name (e.g. airdrop_fix1.txt)
+    Output file name (e.g. airdrop_fix2.txt)
     Scale-factor numerator (e.g. 1)
     Scale-factor denominator (e.g. 10)
 ```
@@ -49,7 +58,7 @@ node ./solidity/scripts/airdrop/rearrange.js
 ```bash
 # initiate the airdrop process
 node ./solidity/scripts/airdrop/run.js
-    Input file name (e.g. airdrop_10p.txt)
+    Input file name (e.g. airdrop_fix2.txt)
     Configuration file name
     Ethereum node address
     Executing agent's private key
