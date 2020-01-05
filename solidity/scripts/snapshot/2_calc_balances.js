@@ -35,7 +35,7 @@ async function run() {
         const words = line.split(" ");
         const src = Web3.utils.toChecksumAddress(words[0].slice(-40));
         const dst = Web3.utils.toChecksumAddress(words[1].slice(-40));
-        const val = Web3.utils.toBN((words[2]));
+        const val = Web3.utils.toBN(words[2]);
         balances[src] = src in balances ? balances[src].sub(val) : val.neg();
         balances[dst] = dst in balances ? balances[dst].add(val) : val;
     }
