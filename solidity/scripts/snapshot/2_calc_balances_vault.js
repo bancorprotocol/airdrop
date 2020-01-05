@@ -23,6 +23,18 @@ async function rpc(method) {
     }
 }
 
+async function get(method, blockNumber) {
+    while (true) {
+        try {
+            return await method.call(null, blockNumber);
+        }
+        catch (error) {
+            if (!error.message.startsWith("Invalid JSON RPC response"))
+                return Web3.utils.toBN(0);
+        }
+    }
+}
+
 async function run() {
     fs.writeFileSync(DST_FILE_NAME, "", {encoding: "utf8"});
 
@@ -30,14 +42,33 @@ async function run() {
     const abi = fs.readFileSync(ARTIFACTS_DIR + "IVault.abi", {encoding: "utf8"});
     const contract = new web3.eth.Contract(JSON.parse(abi), TOKEN_ADDRESS);
     const balances = {[TOKEN_ADDRESS]: await rpc(contract.methods.rawTotalBalance())};
+    const auctions = {};
 
     for (const line of fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}).split(os.EOL).slice(0, -1)) {
         const words = line.split(" ");
-        const src = Web3.utils.toChecksumAddress(words[0].slice(-40));
-        const dst = Web3.utils.toChecksumAddress(words[1].slice(-40));
-        const val = Web3.utils.toBN((words[2]));
-        balances[src] = src in balances ? balances[src].sub(val) : val.neg();
-        balances[dst] = dst in balances ? balances[dst].add(val) : val;
+        switch (words[0]) {
+            case "Transfer":
+                const src = Web3.utils.toChecksumAddress(words[1].slice(-40));
+                const dst = Web3.utils.toChecksumAddress(words[2].slice(-40));
+                const val = Web3.utils.toBN(words[3]);
+                balances[src] = src in balances ? balances[src].sub(val) : val.neg();
+                balances[dst] = dst in balances ? balances[dst].add(val) : val;
+                break;
+            case "AuctBgn":
+                const borrower = Web3.utils.toChecksumAddress(words[1].slice(-40));
+                auctions[borrower] = await get(contract.methods.auctions(borrower), words[2]);
+                balances[auctions[borrower]] = balances[borrower];
+                balances[borrower] = Web3.utils.toBN(0);
+                break;
+            case "AuctEnd":
+                const source = Web3.utils.toChecksumAddress(words[1].slice(-40));
+                const target = Web3.utils.toChecksumAddress(words[2].slice(-40));
+                const amount = Web3.utils.toBN(words[3]);
+                balances[target] = balances[auctions[source]].sub(amount).add(target in balances ? balances[target] : Web3.utils.toBN(0));
+                balances[source] = amount.add(source in balances ? balances[source] : Web3.utils.toBN(0));
+                balances[auctions[source]] = Web3.utils.toBN(0);
+                break;
+        }
     }
 
     for (const [address, balance] of Object.entries(balances)) {

@@ -10,6 +10,9 @@ const LAST_BLOCK    = process.argv[5];
 
 const POSITIVE_EVENT = Web3.utils.keccak256("Deposit(address,uint256)");
 const NEGATIVE_EVENT = Web3.utils.keccak256("Withdraw(address,address,uint256)");
+const AUCT_BGN_EVENT = Web3.utils.keccak256("AuctionStarted(address)");
+const AUCT_END_EVENT = Web3.utils.keccak256("AuctionEnded(address,address,uint256)");
+
 const PADDED_ADDRESS = "0x" + "0".repeat(66 - TOKEN_ADDRESS.length) + TOKEN_ADDRESS.slice(2);
 const BASE_URL_1     = "http://api.etherscan.io/api?module=account&action=txlist&address=" + TOKEN_ADDRESS + "&apikey=" + ETHERSCAN_KEY;
 const BASE_URL_2     = "http://api.etherscan.io/api?module=logs&action=getLogs&address="   + TOKEN_ADDRESS + "&apikey=" + ETHERSCAN_KEY;
@@ -45,8 +48,10 @@ function scan(fromBlock, numOfBlocks) {
                     console.log(`blocks ${fromBlock} + ${numOfBlocks}: error = ${error}, status = ${response.statusCode}, message = ${parsed.message}, events = ${parsed.result.length}`);
                     for (const entry of parsed.result) {
                         switch (entry.topics[0]) {
-                            case POSITIVE_EVENT: fs.appendFileSync(DST_FILE_NAME, `${PADDED_ADDRESS} ${entry.topics[1]} ${entry.data}` + os.EOL, {encoding: "utf8"}); break;
-                            case NEGATIVE_EVENT: fs.appendFileSync(DST_FILE_NAME, `${entry.topics[1]} ${PADDED_ADDRESS} ${entry.data}` + os.EOL, {encoding: "utf8"}); break;
+                            case POSITIVE_EVENT: fs.appendFileSync(DST_FILE_NAME, `Transfer ${PADDED_ADDRESS} ${entry.topics[1]} ${entry.data}` + os.EOL, {encoding: "utf8"}); break;
+                            case NEGATIVE_EVENT: fs.appendFileSync(DST_FILE_NAME, `Transfer ${entry.topics[1]} ${PADDED_ADDRESS} ${entry.data}` + os.EOL, {encoding: "utf8"}); break;
+                            case AUCT_BGN_EVENT: fs.appendFileSync(DST_FILE_NAME, `AuctBgn ${entry.topics[1]} ${entry.blockNumber}`             + os.EOL, {encoding: "utf8"}); break;
+                            case AUCT_END_EVENT: fs.appendFileSync(DST_FILE_NAME, `AuctEnd ${entry.topics[1]} ${entry.topics[2]} ${entry.data}` + os.EOL, {encoding: "utf8"}); break;
                         }
                     }
                     scan(toBlock + 1, numOfBlocks + 1);
