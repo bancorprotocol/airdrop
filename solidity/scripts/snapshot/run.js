@@ -55,8 +55,7 @@ function run() {
         }
         const lines = fs.readFileSync(file3, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
         const supply = lines.map(x => Web3.utils.toBN(x.split(" ")[1])).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
-        if (token.weight == undefined)
-            token.weight = fraction(supply, 1);
+        const weight = token.weight ? token.weight : fraction(supply, 1);
         for (const line of lines) {
             const words = line.split(" ");
             const address = words[0];
@@ -64,13 +63,13 @@ function run() {
             const account = words[2];
             const details = words.slice(3);
             if (address == vaultAddress)
-                queue.push({address: address, weight: token.weight.mul(fraction(balance, supply))});
+                queue.push({address: address, weight: weight.mul(fraction(balance, supply))});
             else if (!/^0x0+$/.test((account)))
-                queue.push({address: account, weight: token.weight.mul(fraction(balance, supply))});
+                queue.push({address: account, weight: weight.mul(fraction(balance, supply))});
             else if (!(address in records))
-                records[address] = {amount: token.weight.mul(fraction(balance, supply)), type: details.join(" ")};
+                records[address] = {amount: weight.mul(fraction(balance, supply)), type: details.join(" ")};
             else
-                records[address].amount = records[address].amount.add(token.weight.mul(fraction(balance, supply)));
+                records[address].amount = records[address].amount.add(weight.mul(fraction(balance, supply)));
         }
     }
 
