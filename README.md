@@ -102,7 +102,7 @@ the input for the `airdrop` process partially derives from the output of the `up
         18
     ],
     "oldConverter": {
-        "addr": "0x..."
+        "addr": "0x9c248517b92Ae226B88a0a0C28dE02B9B7b039D3"
     }
 }
 ```
@@ -111,13 +111,13 @@ the input for the `airdrop` process partially derives from the output of the `up
 ```json
 {
     "airDropper": {
-        "addr": "0x..."
+        "addr": "0xbE8EA1615Bcc7007F4Ac4cDa4e4E89B20d5c9499"
     },
     "relayToken": {
-        "addr": "0x..."
+        "addr": "0xb1CD6e4153B2a390Cf00A6556b0fC1458C4A5533"
     },
     "bancorX": {
-        "addr": "0x..."
+        "addr": "0xEaf3ce7b745F27835Df80B53b86B5299986069C1"
     }
 }
 ```
