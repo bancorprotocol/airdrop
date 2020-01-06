@@ -68,9 +68,9 @@ function run() {
             else if (!/^0x0+$/.test((account)))
                 queue.push({address: account, weight: token.weight.mul(fraction(balance, supply))});
             else if (!(address in records))
-                records[address] = {amount: token.weight.mul(fraction(balance, 1)), type: details.join(" ")};
+                records[address] = {amount: token.weight.mul(fraction(balance, supply)), type: details.join(" ")};
             else
-                records[address].amount = records[address].amount.add(token.weight.mul(fraction(balance, 1)));
+                records[address].amount = records[address].amount.add(token.weight.mul(fraction(balance, supply)));
         }
     }
 
