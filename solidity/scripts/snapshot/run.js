@@ -39,7 +39,7 @@ function run() {
     const spawned = {};
 
     const vaultAddress = Web3.utils.toChecksumAddress(VAULT_ADDRESS);
-    const queue = [{address: Web3.utils.toChecksumAddress(TOKEN_ADDRESS), weight: fraction(1, 1)}];
+    const queue = [{address: Web3.utils.toChecksumAddress(TOKEN_ADDRESS)}];
 
     while (queue.length > 0) {
         const token = queue.shift();
@@ -55,6 +55,8 @@ function run() {
         }
         const lines = fs.readFileSync(file3, {encoding: "utf8"}).split(os.EOL).slice(0, -1);
         const supply = lines.map(x => Web3.utils.toBN(x.split(" ")[1])).reduce((a, b) => a.add(b), Web3.utils.toBN(0));
+        if (token.weight == undefined)
+            token.weight = fraction(supply, 1);
         for (const line of lines) {
             const words = line.split(" ");
             const address = words[0];
