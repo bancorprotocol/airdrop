@@ -47,7 +47,7 @@ node ./solidity/scripts/airdrop/patch1.js
 ```
 
 ```bash
-# rearrange by alphabetic order of the addresses, and rescale each amount
+# rearrange by alphabetical order of the addresses, and rescale each amount
 node ./solidity/scripts/airdrop/patch2.js
     Input file name (e.g. airdrop_patch1.txt)
     Output file name (e.g. airdrop_patch2.txt)
