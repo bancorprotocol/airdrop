@@ -42,7 +42,7 @@ node ./solidity/scripts/snapshot/run.js
 node ./solidity/scripts/airdrop/patch1.js
     Input file name (e.g. airdrop.txt)
     Output file name (e.g. airdrop_patch1.txt)
-    Airdrop contract address (e.g. 0xbE8EA1615Bcc7007F4Ac4cDa4e4E89B20d5c9499)
+    Airdrop contract address (e.g. 0x69532f0B00157866933CDA7C1Bb8Bb0c373f20BF)
     Foundation wallet address (e.g. 0x9b0D0ac3b597F77028b9Df4F90f6C228d6ba33CC)
 ```
 
@@ -120,7 +120,7 @@ the input for the `airdrop` process partially derives from the output of the `up
 ```json
 {
     "airDropper": {
-        "addr": "0xbE8EA1615Bcc7007F4Ac4cDa4e4E89B20d5c9499"
+        "addr": "0x69532f0B00157866933CDA7C1Bb8Bb0c373f20BF"
     },
     "relayToken": {
         "addr": "0xb1CD6e4153B2a390Cf00A6556b0fC1458C4A5533"
