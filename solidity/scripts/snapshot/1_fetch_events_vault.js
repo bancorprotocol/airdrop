@@ -24,11 +24,11 @@ function init() {
         if (parsed.result && parsed.result.length > 0) {
             if (parsed.result[0].to == "") {
                 console.log(`error = ${error}, status = ${response.statusCode}, message = ${parsed.message}, block = ${parsed.result[0].blockNumber}`);
-                scan(Number(parsed.result[0].blockNumber), MAX_RESULTS);
+                scan(Number(parsed.result[0].blockNumber), Number(LAST_BLOCK) - Number(parsed.result[0].blockNumber) + 1);
             }
             else {
                 console.log(`error = ${error}, status = ${response.statusCode}, message = ${parsed.message}, block = 0`);
-                scan(0, MAX_RESULTS);
+                scan(0, Number(LAST_BLOCK) + 1);
             }
         }
         else {
