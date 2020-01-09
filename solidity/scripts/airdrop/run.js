@@ -13,8 +13,6 @@ const TEST_MODE     = process.argv[8];
 
 const ARTIFACTS_DIR = __dirname + "/../../build/";
 
-const BANCOR_X_DEST = "airdropsdac1";
-
 const MIN_GAS_LIMIT = 0;
 
 function get() {
