@@ -228,7 +228,7 @@ async function run() {
         await executePhase(converter .methods.acceptTokenOwnership());
         await executePhase(converter .methods.setBancorX(bancorX._address));
 
-        lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + Web3.utils.asciiToHex(TEST_MODE);
+        lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(TEST_MODE);
     }
 
     const airDropper = deployed(web3, "AirDropper", get().airDropper.addr);
