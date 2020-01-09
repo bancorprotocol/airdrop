@@ -228,8 +228,10 @@ async function run() {
         await executePhase(converter .methods.acceptTokenOwnership());
         await executePhase(converter .methods.setBancorX(bancorX._address));
 
-        lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(TEST_MODE);
+        lines[0] = bancorX._address + " " + lines[0].split(" ").slice(1).join(" ");
     }
+
+    const targetX = lines[0].split(" ")[2];
 
     const airDropper = deployed(web3, "AirDropper", get().airDropper.addr);
     const relayToken = deployed(web3, "SmartToken", get().relayToken.addr);
@@ -241,7 +243,7 @@ async function run() {
     const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing transaction 'setAgent(${input})'...`);
     const setState    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState(input)) : (input) => scan(`Press enter after executing transaction 'setState(${input})'...`);
     const storeBatch  = () => execute(web3, web3Func, "storeBatch" , S_BATCH_SIZE, airDropper.methods.storedBalances     , (targets, amounts) => airDropper.methods.storeBatch (targets, amounts), lines);
-    const transferEos = () => execute(web3, web3Func, "transferEos", T_BATCH_SIZE, airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targets[0], amounts[0]), [lines[0]]);
+    const transferEos = () => execute(web3, web3Func, "transferEos", T_BATCH_SIZE, airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEos(bancorX._address, targetX, amounts[0]), [lines[0]]);
     const transferEth = () => execute(web3, web3Func, "transferEth", T_BATCH_SIZE, airDropper.methods.transferredBalances, (targets, amounts) => airDropper.methods.transferEth(relayToken._address, targets, amounts), lines.slice(1));
 
     assert.equal(lines[0].split(" ")[0], bancorX._address);
