@@ -228,15 +228,13 @@ async function run() {
         await executePhase(converter .methods.acceptTokenOwnership());
         await executePhase(converter .methods.setBancorX(bancorX._address));
 
-        lines[0] = bancorX._address + " " + lines[0].split(" ")[1];
+        lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + Web3.utils.asciiToHex(TEST_MODE);
     }
 
     const airDropper = deployed(web3, "AirDropper", get().airDropper.addr);
     const relayToken = deployed(web3, "SmartToken", get().relayToken.addr);
     const bancorX    = deployed(web3, "BancorX"   , get().bancorX   .addr);
 
-    lines.unshift(lines.splice(lines.findIndex(line => line.split(" ")[0] == bancorX._address), 1)[0]);
-    lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
     const expectedCRC = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
     const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing transaction 'setAgent(${input})'...`);
