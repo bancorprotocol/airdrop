@@ -133,7 +133,7 @@ async function updateAgent(airDropper, setAgent, newAgent) {
 
 async function updateState(airDropper, expectedCRC, setState, newState) {
     assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), expectedCRC);
-    while (await rpc(airDropper.methods.state()) < newState)
+    while (await rpc(airDropper.methods.state()) != newState)
         await setState(newState);
 }
 
