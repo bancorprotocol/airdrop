@@ -42,7 +42,6 @@ for (const address of Object.keys(srcMap)) {
     const getVal = address => {
         switch (address) {
             case OLD_BANCOR_X: return undefined;
-            case NEW_BANCOR_X: return Web3.utils.toBN(srcMap[OLD_BANCOR_X]).add(Web3.utils.toBN(srcMap[NEW_BANCOR_X])).toString();
             default: return srcMap[address];
         }
     };
@@ -54,7 +53,7 @@ for (const address of Object.keys(srcMap)) {
 for (const address of Object.keys(dstMap)) {
     const getVal = address => {
         switch (address) {
-            case NEW_BANCOR_X: return Web3.utils.toBN(srcMap[OLD_BANCOR_X]).add(Web3.utils.toBN(srcMap[NEW_BANCOR_X])).toString();
+            case NEW_BANCOR_X: return srcMap[OLD_BANCOR_X];
             default: return srcMap[address];
         }
     };
