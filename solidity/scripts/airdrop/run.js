@@ -231,6 +231,8 @@ async function run() {
         lines[0] = bancorX._address + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(TEST_MODE);
     }
 
+    assert.equal(lines[0].split(" ")[0], bancorX._address);
+
     const airDropper = deployed(web3, "AirDropper", get().airDropper.addr);
     const relayToken = deployed(web3, "SmartToken", get().relayToken.addr);
     const bancorX    = deployed(web3, "BancorX"   , get().bancorX   .addr);

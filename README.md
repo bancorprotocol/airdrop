@@ -47,21 +47,21 @@ node ./solidity/scripts/airdrop/patch1.js
 ```
 
 ```bash
-# replace the BancorX contrcat address, and append the BancorX target address
+# rearrange by alphabetical order of the addresses, and rescale each amount
 node ./solidity/scripts/airdrop/patch2.js
     Input file name (e.g. airdrop_patch1.txt)
     Output file name (e.g. airdrop_patch2.txt)
-    Old BancorX contract address (e.g. 0xdA96eB2Fa67642C171650c428F93aBDfB8A63A2D)
-    New BancorX contract address (e.g. 0xEaf3ce7b745F27835Df80B53b86B5299986069C1)
+    Scale-factor numerator (e.g. 1)
+    Scale-factor denominator (e.g. 10)
 ```
 
 ```bash
-# rearrange by alphabetical order of the addresses, and rescale each amount
+# replace the BancorX contrcat address, and move this line to the top of the list
 node ./solidity/scripts/airdrop/patch3.js
     Input file name (e.g. airdrop_patch2.txt)
     Output file name (e.g. airdrop_patch3.txt)
-    Scale-factor numerator (e.g. 1)
-    Scale-factor denominator (e.g. 10)
+    Old BancorX contract address (e.g. 0xdA96eB2Fa67642C171650c428F93aBDfB8A63A2D)
+    New BancorX contract address (e.g. 0xEaf3ce7b745F27835Df80B53b86B5299986069C1)
 ```
 
 ```bash
