@@ -41,8 +41,8 @@ const dstSum = sum(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"}));
 for (const address of Object.keys(srcMap)) {
     const getVal = address => {
         switch (address) {
-            case CONTRACT_ADDR: return undefined;
-            case ACCOUNT_ADDR: return Web3.utils.toBN(srcMap[CONTRACT_ADDR]).add(Web3.utils.toBN(srcMap[ACCOUNT_ADDR])).toString();
+            case OLD_BANCOR_X: return undefined;
+            case NEW_BANCOR_X: return Web3.utils.toBN(srcMap[OLD_BANCOR_X]).add(Web3.utils.toBN(srcMap[NEW_BANCOR_X])).toString();
             default: return srcMap[address];
         }
     };
@@ -54,7 +54,7 @@ for (const address of Object.keys(srcMap)) {
 for (const address of Object.keys(dstMap)) {
     const getVal = address => {
         switch (address) {
-            case ACCOUNT_ADDR: return Web3.utils.toBN(srcMap[CONTRACT_ADDR]).add(Web3.utils.toBN(srcMap[ACCOUNT_ADDR])).toString();
+            case NEW_BANCOR_X: return Web3.utils.toBN(srcMap[OLD_BANCOR_X]).add(Web3.utils.toBN(srcMap[NEW_BANCOR_X])).toString();
             default: return srcMap[address];
         }
     };
