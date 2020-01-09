@@ -131,7 +131,7 @@ async function updateAgent(airDropper, setAgent, newAgent) {
 
 async function updateState(airDropper, expectedCRC, setState, newState) {
     assert.equal(await rpc(airDropper.methods.storedBalancesCRC()), expectedCRC);
-    while (await rpc(airDropper.methods.state()) != newState)
+    while (await rpc(airDropper.methods.state()) < newState)
         await setState(newState);
 }
 
@@ -235,8 +235,7 @@ async function run() {
     const relayToken = deployed(web3, "SmartToken", get().relayToken.addr);
     const bancorX    = deployed(web3, "BancorX"   , get().bancorX   .addr);
 
-    const initialCRC = "0x" + Web3.utils.toBN(0).toString(16, 64);
-    const updatedCRC = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
+    const expectedCRC = "0x" + iterator((a, b) => a.xor(b), b => Web3.utils.soliditySha3(b[0], b[1])).toString(16, 64);
 
     const setAgent    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setAgent(input)) : (input) => scan(`Press enter after executing transaction 'setAgent(${input})'...`);
     const setState    = TEST_MODE ? (input) => web3Func(send, airDropper.methods.setState(input)) : (input) => scan(`Press enter after executing transaction 'setState(${input})'...`);
@@ -247,11 +246,10 @@ async function run() {
     assert.equal(lines[0].split(" ")[0], bancorX._address);
 
     await updateAgent(airDropper, setAgent, account.address);
-    await updateState(airDropper, initialCRC, setState, 0);
     await storeBatch();
     await printStatus(relayToken, airDropper);
-    await updateState(airDropper, updatedCRC, setState, 1);
-    await updateState(airDropper, updatedCRC, setState, 2);
+    await updateState(airDropper, expectedCRC, setState, 1);
+    await updateState(airDropper, expectedCRC, setState, 2);
     await transferEos();
     await printStatus(relayToken, airDropper);
     await transferEth();
