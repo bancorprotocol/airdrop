@@ -5,8 +5,6 @@ const assert = require("assert");
 
 const SRC_FILE_NAME = process.argv[2];
 const DST_FILE_NAME = process.argv[3];
-const NUMERATOR     = process.argv[4];
-const DENOMINATOR   = process.argv[5];
 
 function run(data) {
     return data
