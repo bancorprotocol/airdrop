@@ -8,7 +8,7 @@ const DST_FILE_NAME = process.argv[3];
 const CONTRACT_ADDR = process.argv[4];
 const ACCOUNT_ADDR  = process.argv[5];
 
-function repair(data) {
+function run(data) {
     const amount = data
     .split(os.EOL).slice(0, -1)
     .map(line => line.split(" "))
@@ -37,7 +37,7 @@ function sum(data) {
     .reduce((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
 }
 
-fs.writeFileSync(DST_FILE_NAME, repair(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})), {encoding: "utf8"});
+fs.writeFileSync(DST_FILE_NAME, run(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})), {encoding: "utf8"});
 
 const srcMap = map(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}));
 const dstMap = map(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"}));

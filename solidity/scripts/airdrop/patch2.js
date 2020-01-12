@@ -10,7 +10,7 @@ const NEW_BANCOR_X  = process.argv[5];
 
 const BANCOR_X_DEST = "airdropsdac1";
 
-function replace(data) {
+function run(data) {
     const lines = data.split(os.EOL).slice(0, -1);
     lines.unshift(lines.splice(lines.findIndex(line => line.split(" ")[0] == OLD_BANCOR_X), 1)[0]);
     lines[0] = NEW_BANCOR_X + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
@@ -31,7 +31,7 @@ function sum(data) {
     .reduce((a, b) => a.add(Web3.utils.toBN(b[1])), Web3.utils.toBN(0)).toString();
 }
 
-fs.writeFileSync(DST_FILE_NAME, replace(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})), {encoding: "utf8"});
+fs.writeFileSync(DST_FILE_NAME, run(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"})), {encoding: "utf8"});
 
 const srcMap = map(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}));
 const dstMap = map(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"}));
