@@ -47,7 +47,7 @@ node ./solidity/scripts/airdrop/patch1.js
 ```
 
 ```bash
-# replace the BancorX contrcat address and move this line to the top of the list
+# replace the BancorX contrcat address and move it to the top of the list
 node ./solidity/scripts/airdrop/patch2.js
     Input file name (e.g. airdrop_patch1.txt)
     Output file name (e.g. airdrop_patch2.txt)
