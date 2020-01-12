@@ -38,7 +38,7 @@ node ./solidity/scripts/snapshot/run.js
 
 **Airdrop Execution:**
 ```bash
-# move the amount entitled by the airdrop contract to the foundation wallet
+# move the amount entitled by the AirDropper contract to the foundation wallet
 node ./solidity/scripts/airdrop/patch1.js
     Input file name (e.g. airdrop.txt)
     Output file name (e.g. airdrop_patch1.txt)
@@ -47,27 +47,34 @@ node ./solidity/scripts/airdrop/patch1.js
 ```
 
 ```bash
-# rearrange by alphabetical order of the addresses, and rescale each amount
+# replace the BancorX contrcat address and move this line to the top of the list
 node ./solidity/scripts/airdrop/patch2.js
     Input file name (e.g. airdrop_patch1.txt)
     Output file name (e.g. airdrop_patch2.txt)
-    Scale-factor numerator (e.g. 1)
-    Scale-factor denominator (e.g. 10)
-```
-
-```bash
-# replace the BancorX contrcat address, and move this line to the top of the list
-node ./solidity/scripts/airdrop/patch3.js
-    Input file name (e.g. airdrop_patch2.txt)
-    Output file name (e.g. airdrop_patch3.txt)
     Old BancorX contract address (e.g. 0xdA96eB2Fa67642C171650c428F93aBDfB8A63A2D)
     New BancorX contract address (e.g. 0xEaf3ce7b745F27835Df80B53b86B5299986069C1)
 ```
 
 ```bash
+# rescale each amount by a given factor and remove all the zero amounts in the list
+node ./solidity/scripts/airdrop/patch3.js
+    Input file name (e.g. airdrop_patch2.txt)
+    Output file name (e.g. airdrop_patch3.txt)
+    Scale-factor numerator (e.g. 1)
+    Scale-factor denominator (e.g. 10)
+```
+
+```bash
+# rearrange the list by alphabetical order of the addresses
+node ./solidity/scripts/airdrop/patch4.js
+    Input file name (e.g. airdrop_patch3.txt)
+    Output file name (e.g. airdrop_patch4.txt)
+```
+
+```bash
 # initiate the airdrop process
 node ./solidity/scripts/airdrop/run.js
-    Input file name (e.g. airdrop_patch3.txt)
+    Input file name (e.g. airdrop_patch4.txt)
     Configuration file name
     Ethereum node address
     Executing agent's private key

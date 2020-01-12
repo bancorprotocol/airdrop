@@ -5,16 +5,13 @@ const assert = require("assert");
 
 const SRC_FILE_NAME = process.argv[2];
 const DST_FILE_NAME = process.argv[3];
-const NUMERATOR     = process.argv[4];
-const DENOMINATOR   = process.argv[5];
 
 function run(data) {
     return data
-    .split(os.EOL).slice(0, -1)
+    .split(os.EOL)[0] + os.EOL + data
+    .split(os.EOL).slice(1, -1)
     .map(line => line.split(" "))
     .sort((a, b) => Web3.utils.toBN(a[0]).cmp(Web3.utils.toBN(b[0])))
-    .map(words => [words[0], Web3.utils.toBN(words[1]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString(), ...words.slice(2)])
-    .filter(words => words[1] != "0")
     .map(words => words.join(" "))
     .join(os.EOL) + os.EOL;
 }
@@ -41,16 +38,14 @@ const srcSum = sum(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}));
 const dstSum = sum(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"}));
 
 for (const address of Object.keys(srcMap)) {
-    const amount   = Web3.utils.toBN(srcMap[address]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString();
-    const expected = JSON.stringify({[address]: amount != "0" ? amount : undefined});
+    const expected = JSON.stringify({[address]: srcMap[address]});
     const actual   = JSON.stringify({[address]: dstMap[address]});
     assert.equal(actual, expected);
 }
 
 for (const address of Object.keys(dstMap)) {
-    const amount   = Web3.utils.toBN(srcMap[address]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString();
     const expected = JSON.stringify({[address]: dstMap[address]});
-    const actual   = JSON.stringify({[address]: amount});
+    const actual   = JSON.stringify({[address]: srcMap[address]});
     assert.equal(actual, expected);
 }
 
