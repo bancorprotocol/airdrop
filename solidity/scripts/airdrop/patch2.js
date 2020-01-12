@@ -8,12 +8,10 @@ const DST_FILE_NAME = process.argv[3];
 const OLD_BANCOR_X  = process.argv[4];
 const NEW_BANCOR_X  = process.argv[5];
 
-const BANCOR_X_DEST = "airdropsdac1";
-
 function run(data) {
     const lines = data.split(os.EOL).slice(0, -1);
     lines.unshift(lines.splice(lines.findIndex(line => line.split(" ")[0] == OLD_BANCOR_X), 1)[0]);
-    lines[0] = NEW_BANCOR_X + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex(BANCOR_X_DEST);
+    lines[0] = NEW_BANCOR_X + " " + lines[0].split(" ")[1] + " " + Web3.utils.asciiToHex("airdropsdac1");
     return lines.join(os.EOL) + os.EOL;
 }
 
