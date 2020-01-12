@@ -38,7 +38,7 @@ node ./solidity/scripts/snapshot/run.js
 
 **Airdrop Execution:**
 ```bash
-# move the amount entitled by the AirDropper contract to the foundation wallet
+# move the amount entitled by the airdrop contract to the foundation wallet
 node ./solidity/scripts/airdrop/patch1.js
     Input file name (e.g. airdrop.txt)
     Output file name (e.g. airdrop_patch1.txt)
