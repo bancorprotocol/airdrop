@@ -12,8 +12,8 @@ function run(data) {
     return data
     .split(os.EOL).slice(0, -1)
     .map(line => line.split(" "))
-    .map(words => [words[0], Web3.utils.toBN(words[1]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString(), ...words.slice(2)])
-    .filter(words => words[1] != "0")
+    .map(words => [words[0], words[1].slice(0, -1), ...words.slice(2)])
+    .filter(words => words[1].length > 0)
     .map(words => words.join(" "))
     .join(os.EOL) + os.EOL;
 }
@@ -40,16 +40,14 @@ const srcSum = sum(fs.readFileSync(SRC_FILE_NAME, {encoding: "utf8"}));
 const dstSum = sum(fs.readFileSync(DST_FILE_NAME, {encoding: "utf8"}));
 
 for (const address of Object.keys(srcMap)) {
-    const amount   = Web3.utils.toBN(srcMap[address]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString();
-    const expected = JSON.stringify({[address]: amount != "0" ? amount : undefined});
+    const expected = JSON.stringify({[address]: srcMap[address].slice(0, -1) ? srcMap[address].slice(0, -1) : undefined});
     const actual   = JSON.stringify({[address]: dstMap[address]});
     assert.equal(actual, expected);
 }
 
 for (const address of Object.keys(dstMap)) {
-    const amount   = Web3.utils.toBN(srcMap[address]).muln(Number(NUMERATOR)).divn(Number(DENOMINATOR)).toString();
     const expected = JSON.stringify({[address]: dstMap[address]});
-    const actual   = JSON.stringify({[address]: amount});
+    const actual   = JSON.stringify({[address]: srcMap[address].slice(0, -1)});
     assert.equal(actual, expected);
 }
 

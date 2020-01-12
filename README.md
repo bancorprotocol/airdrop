@@ -56,12 +56,10 @@ node ./solidity/scripts/airdrop/patch2.js
 ```
 
 ```bash
-# rescale each amount by a given factor and remove all the zero amounts in the list
+# divide each amount by 10 and remove all the zero amounts in the list
 node ./solidity/scripts/airdrop/patch3.js
     Input file name (e.g. airdrop_patch2.txt)
     Output file name (e.g. airdrop_patch3.txt)
-    Scale-factor numerator (e.g. 1)
-    Scale-factor denominator (e.g. 10)
 ```
 
 ```bash
